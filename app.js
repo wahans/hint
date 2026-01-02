@@ -2,8 +2,8 @@
 // Allows viewing and claiming from hintlists without an account
 
 // Configuration - UPDATE THESE WITH YOUR SUPABASE CREDENTIALS
-const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // e.g., https://xxxxx.supabase.co
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://whbqyxtjmbordcjtqyoq.supabase.co'; // e.g., https://xxxxx.supabase.co
+const SUPABASE_ANON_KEY = 'sb_publishable_F_kWmrgqH43Y4Rfoi-DNPg_Ds3ASB_T';
 
 let currentList = null;
 let currentProducts = [];
