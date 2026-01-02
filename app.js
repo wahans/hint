@@ -3,7 +3,7 @@
 
 // Configuration - UPDATE THESE WITH YOUR SUPABASE CREDENTIALS
 const SUPABASE_URL = 'https://whbqyxtjmbordcjtqyoq.supabase.co'; // e.g., https://xxxxx.supabase.co
-const SUPABASE_ANON_KEY = 'sb_publishable_F_kWmrgqH43Y4Rfoi-DNPg_Ds3ASB_T';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoYnF5eHRqbWJvcmRjanRxeW9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwMzY0MDksImV4cCI6MjA4MjYxMjQwOX0.GiTCNNNcMVuGdd45AJbXFB6eS0a5enXoUW7nfkZPD3k';
 
 let currentList = null;
 let currentProducts = [];
