@@ -47,6 +47,7 @@ async function loadHintlist() {
   
   try {
     // Find list by access code
+    console.log('Fetching list with code:', code);
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/lists?access_code=eq.${code}&is_public=eq.true&select=*`,
       {
@@ -57,7 +58,9 @@ async function loadHintlist() {
       }
     );
     
+    console.log('Lists response status:', response.status);
     const lists = await response.json();
+    console.log('Lists found:', lists);
     
     if (!response.ok || lists.length === 0) {
       showMessage('formMessage', 'Invalid access code or hintlist not found', 'error');
@@ -67,6 +70,7 @@ async function loadHintlist() {
     currentList = lists[0];
     
     // Load products for this list
+    console.log('Fetching products for list:', currentList.id);
     const productsResponse = await fetch(
       `${SUPABASE_URL}/rest/v1/products?list_id=eq.${currentList.id}&select=*`,
       {
@@ -77,14 +81,16 @@ async function loadHintlist() {
       }
     );
     
+    console.log('Products response status:', productsResponse.status);
     currentProducts = await productsResponse.json();
+    console.log('Products loaded:', currentProducts);
     
     // Display the hintlist
     displayHintlist();
     
   } catch (error) {
     console.error('Error loading hintlist:', error);
-    showMessage('formMessage', 'Error loading hintlist. Please try again.', 'error');
+    showMessage('formMessage', `Error loading hintlist: ${error.message}`, 'error');
   }
 }
 
@@ -96,8 +102,14 @@ function displayHintlist() {
   // Update header
   document.getElementById('hintlistName').textContent = currentList.name;
   
-  // Filter out claimed items (non-users can't see who claimed)
-  const availableProducts = currentProducts.filter(p => !p.claimed_by);
+  // Filter out claimed items (check both claimed_by and guest_claimer_email)
+  const availableProducts = currentProducts.filter(p => {
+    return !p.claimed_by && !p.guest_claimer_email && p.guest_claimer_email !== '';
+  });
+  
+  console.log('Total products:', currentProducts.length);
+  console.log('Available products:', availableProducts.length);
+  console.log('Products data:', currentProducts);
   
   document.getElementById('itemCount').textContent = `${availableProducts.length} available items`;
   
