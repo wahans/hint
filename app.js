@@ -2,8 +2,8 @@
 // Allows viewing and claiming from hintlists without an account
 
 // Configuration - UPDATE THESE WITH YOUR SUPABASE CREDENTIALS
-const SUPABASE_URL = 'https://whbqyxtjmbordcjtqyoq.supabase.co'; // e.g., https://xxxxx.supabase.co
-const SUPABASE_ANON_KEY = 'sb_publishable_F_kWmrgqH43Y4Rfoi-DNPg_Ds3ASB_T';
+const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // e.g., https://xxxxx.supabase.co
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
 let currentList = null;
 let currentProducts = [];
@@ -181,27 +181,25 @@ async function confirmClaim() {
   showMessage('claimMessage', 'Claiming item...', 'info');
   
   try {
-    // Create a guest claim record
-    // Note: This requires a modified claim_product RPC function that accepts guest info
+    // Update product directly with guest claim info
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/rpc/claim_product_as_guest`,
+      `${SUPABASE_URL}/rest/v1/products?id=eq.${currentProductToClaim.id}`,
       {
-        method: 'POST',
+        method: 'PATCH',
         headers: {
           'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
         },
         body: JSON.stringify({
-          product_id: currentProductToClaim.id,
-          guest_name: name,
-          guest_email: email
+          guest_claimer_name: name,
+          guest_claimer_email: email,
+          claimed_at: new Date().toISOString()
         })
       }
     );
     
-    const result = await response.json();
-    
-    if (result.success) {
+    if (response.ok) {
       showMessage('claimMessage', 'Item claimed successfully! The list owner has been notified.', 'success');
       
       setTimeout(() => {
@@ -209,7 +207,9 @@ async function confirmClaim() {
         loadHintlist(); // Reload to hide claimed item
       }, 2000);
     } else {
-      showMessage('claimMessage', result.error || 'Failed to claim item', 'error');
+      const error = await response.json();
+      console.error('Claim error:', error);
+      showMessage('claimMessage', error.message || 'Failed to claim item', 'error');
     }
     
   } catch (error) {
