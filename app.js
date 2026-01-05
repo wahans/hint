@@ -76,18 +76,25 @@ async function handleUnclaim(token, productId) {
     
     const product = products[0];
     
+    // Store product info for later use
+    window.unclaimProductInfo = {
+      name: product.name,
+      email: product.guest_claimer_email,
+      claimerName: product.guest_claimer_name
+    };
+    
     // Show confirmation dialog
     document.getElementById('accessForm').innerHTML = `
       <h2>🔓 Unclaim Item</h2>
       <p>Are you sure you want to unclaim this item?</p>
-      <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #228855;">
+      <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc3545;">
         <strong>${product.name}</strong>
         <p style="color: #666; font-size: 14px; margin: 5px 0 0;">Claimed by: ${product.guest_claimer_name}</p>
       </div>
       <p style="color: #666; font-size: 14px;">This will make the item available for others to claim again.</p>
       <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button onclick="window.location.href='${window.location.pathname}'" style="background: #6c757d;">Cancel</button>
-        <button onclick="confirmUnclaim('${productId}', '${token}')">Yes, Unclaim</button>
+        <button onclick="confirmUnclaim('${productId}', '${token}')" style="background: #dc3545;">Yes, Unclaim</button>
       </div>
       <div id="unclaimResult" style="margin-top: 20px;"></div>
     `;
@@ -104,6 +111,9 @@ async function handleUnclaim(token, productId) {
 async function confirmUnclaim(productId, token) {
   const resultDiv = document.getElementById('unclaimResult');
   resultDiv.innerHTML = '<p style="color: #0c5460;">Processing...</p>';
+  
+  // Get stored product info
+  const productInfo = window.unclaimProductInfo || {};
   
   try {
     // Clear the claim data
@@ -126,8 +136,13 @@ async function confirmUnclaim(productId, token) {
     );
     
     if (response.ok) {
+      // Send unclaim confirmation email
+      if (productInfo.email) {
+        await sendUnclaimConfirmation(productInfo.claimerName, productInfo.email, productInfo.name);
+      }
+      
       document.getElementById('accessForm').innerHTML = `
-        <h2>✅ Item Unclaimed</h2>
+        <h2>🔓 Item Unclaimed</h2>
         <p style="color: #155724;">The item has been successfully unclaimed and is now available for others.</p>
         <p style="margin-top: 20px;">Thank you for letting us know!</p>
       `;
@@ -253,6 +268,9 @@ function displayHintlist() {
       urlHTML = `<div class="product-url">${displayUrl}</div>`;
     }
     
+    // Escape URL for use in onclick
+    const escapedUrl = product.url ? product.url.replace(/'/g, "\\'") : '';
+    
     productDiv.innerHTML = `
       <div class="product-content">
         ${imageHTML}
@@ -264,7 +282,7 @@ function displayHintlist() {
       </div>
       <div class="product-actions">
         ${product.url ? `<button class="btn-small btn-secondary" onclick="window.open('${product.url}', '_blank')">🔗 View Product</button>` : ''}
-        <button class="btn-small" onclick="openClaimModal('${product.id}', '${product.name.replace(/'/g, "\\'")}')">🎁 I'll Buy This</button>
+        <button class="btn-small" onclick="openClaimModal('${product.id}', '${product.name.replace(/'/g, "\\'")}', '${escapedUrl}')">🎁 I'll Buy This</button>
       </div>
     `;
     
@@ -276,8 +294,8 @@ function displayHintlist() {
   window.history.replaceState({}, '', newURL);
 }
 
-function openClaimModal(productId, productName) {
-  currentProductToClaim = { id: productId, name: productName };
+function openClaimModal(productId, productName, productUrl) {
+  currentProductToClaim = { id: productId, name: productName, url: productUrl };
   document.getElementById('claimModal').classList.add('show');
   document.getElementById('claimerName').focus();
   
@@ -337,8 +355,8 @@ async function confirmClaim() {
       // Send notification to list owner
       await sendClaimNotification(currentProductToClaim.id, name);
       
-      // Send confirmation email to claimer with unclaim link
-      await sendClaimerConfirmation(name, email, currentProductToClaim.name, unclaimToken, currentProductToClaim.id);
+      // Send confirmation email to claimer with unclaim link and buy link
+      await sendClaimerConfirmation(name, email, currentProductToClaim.name, currentProductToClaim.url, unclaimToken, currentProductToClaim.id);
       
       showMessage('claimMessage', 'Item claimed! Check your email for confirmation.', 'success');
       
@@ -424,7 +442,7 @@ async function sendClaimNotification(productId, claimerName) {
 }
 
 // Send confirmation email to the person who claimed
-async function sendClaimerConfirmation(claimerName, claimerEmail, productName, unclaimToken, productId) {
+async function sendClaimerConfirmation(claimerName, claimerEmail, productName, productUrl, unclaimToken, productId) {
   try {
     const unclaimUrl = `${window.location.origin}${window.location.pathname}?unclaim=${unclaimToken}&product=${productId}`;
     
@@ -438,6 +456,7 @@ async function sendClaimerConfirmation(claimerName, claimerEmail, productName, u
         claimer_name: claimerName,
         claimer_email: claimerEmail,
         product_name: productName,
+        product_url: productUrl || null,
         unclaim_url: unclaimUrl
       })
     });
@@ -462,5 +481,25 @@ function showMessage(elementId, text, type) {
         el.innerHTML = '';
       }, 4000);
     }
+  }
+}
+
+// Send unclaim confirmation email
+async function sendUnclaimConfirmation(claimerName, claimerEmail, productName) {
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/send-unclaim-confirmation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+        claimer_name: claimerName,
+        claimer_email: claimerEmail,
+        product_name: productName
+      })
+    });
+  } catch (error) {
+    console.error('Error sending unclaim confirmation:', error);
   }
 }
