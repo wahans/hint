@@ -16,12 +16,12 @@
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f8f9fa;
+      background: #f0f9f4;
       min-height: 100vh;
     }
     
     .header {
-      background: linear-gradient(135deg, #228855 0%, #1a6b42 100%);
+      background: #228855;
       color: white;
       padding: 30px 20px;
       text-align: center;
@@ -51,7 +51,7 @@
       background: white;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(34, 136, 85, 0.15);
       margin-top: 20px;
     }
     
@@ -122,7 +122,7 @@
       background: white;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(34, 136, 85, 0.15);
       margin-top: 20px;
       display: none;
     }
@@ -146,7 +146,7 @@
     
     .product-item {
       background: #f8f9fa;
-      padding: 20px;
+      padding: 16px;
       border-radius: 8px;
       margin-bottom: 16px;
       border-left: 4px solid #228855;
@@ -158,31 +158,63 @@
       transform: translateX(4px);
     }
     
-    .product-item.claimed {
-      background: #fff3cd;
-      border-left-color: #ffc107;
-      opacity: 0.7;
+    .product-content {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .product-image {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #e9ecef;
+    }
+    
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .product-image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      background: #e9ecef;
+      color: #adb5bd;
+    }
+    
+    .product-details {
+      flex: 1;
+      min-width: 0;
     }
     
     .product-name {
       font-size: 18px;
       font-weight: 600;
       color: #212529;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     
     .product-price {
       font-size: 16px;
       color: #228855;
       font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     
     .product-url {
-      font-size: 13px;
+      font-size: 12px;
       color: #6c757d;
-      margin-bottom: 12px;
-      word-break: break-all;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .product-actions {
@@ -192,11 +224,11 @@
     }
     
     .btn-small {
-      padding: 8px 16px;
+      padding: 10px 16px;
       font-size: 14px;
       border-radius: 6px;
       flex: 1;
-      min-width: 120px;
+      min-width: 130px;
     }
     
     .btn-secondary {
@@ -252,7 +284,7 @@
     }
     
     .cta-box {
-      background: linear-gradient(135deg, #228855 0%, #1a6b42 100%);
+      background: #228855;
       color: white;
       padding: 30px;
       border-radius: 12px;
@@ -327,6 +359,16 @@
         padding: 20px;
       }
       
+      .product-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .product-image {
+        width: 100%;
+        height: 150px;
+      }
+      
       .product-actions {
         flex-direction: column;
       }
@@ -339,8 +381,8 @@
 </head>
 <body>
   <div class="header">
-    <h1>*hint</h1>
-    <p>The smarter way to share your wishlist</p>
+    <h1>hint</h1>
+    <p>The smarter way to share your hintlist</p>
   </div>
   
   <div class="container">
@@ -353,7 +395,7 @@
       
       <div class="input-group">
         <label for="accessCode">Access Code</label>
-        <input type="text" id="accessCode" placeholder="e.g., abc123xy" autofocus>
+        <input type="text" id="accessCode" placeholder="e.g., ABC123XY" autofocus>
       </div>
       
       <button id="loadHintlistBtn">View Hintlist</button>
@@ -373,7 +415,7 @@
       <!-- CTA Box -->
       <div class="cta-box">
         <h3>💡 Want your own hintlist?</h3>
-        <p>Create your own hints, track prices, and share with friends!</p>
+        <p>Create your own hintlists, track prices, and share with friends!</p>
         <button onclick="window.open('https://chrome.google.com/webstore', '_blank')">
           Get hint Extension
         </button>
