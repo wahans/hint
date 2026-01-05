@@ -24,14 +24,119 @@ function setupEventListeners() {
   document.getElementById('confirmClaimBtn').addEventListener('click', confirmClaim);
 }
 
-// Check if access code is in URL
+// Check if access code or unclaim token is in URL
 function checkURLForCode() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
+  const unclaimToken = params.get('unclaim');
+  const productId = params.get('product');
+  
+  // Handle unclaim request
+  if (unclaimToken && productId) {
+    handleUnclaim(unclaimToken, productId);
+    return;
+  }
   
   if (code) {
     document.getElementById('accessCode').value = code;
     loadHintlist();
+  }
+}
+
+// Handle unclaim from email link
+async function handleUnclaim(token, productId) {
+  document.getElementById('accessForm').innerHTML = `
+    <h2>🔓 Unclaim Item</h2>
+    <div id="unclaimMessage"></div>
+    <p>Processing your unclaim request...</p>
+  `;
+  
+  try {
+    // Verify the token matches the product
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/products?id=eq.${productId}&unclaim_token=eq.${token}&select=*`,
+      {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    const products = await response.json();
+    
+    if (!products || products.length === 0) {
+      document.getElementById('accessForm').innerHTML = `
+        <h2>❌ Invalid Link</h2>
+        <p style="color: #dc3545;">This unclaim link is invalid or has already been used.</p>
+        <p>The item may have already been unclaimed, or the link has expired.</p>
+      `;
+      return;
+    }
+    
+    const product = products[0];
+    
+    // Show confirmation dialog
+    document.getElementById('accessForm').innerHTML = `
+      <h2>🔓 Unclaim Item</h2>
+      <p>Are you sure you want to unclaim this item?</p>
+      <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #228855;">
+        <strong>${product.name}</strong>
+        <p style="color: #666; font-size: 14px; margin: 5px 0 0;">Claimed by: ${product.guest_claimer_name}</p>
+      </div>
+      <p style="color: #666; font-size: 14px;">This will make the item available for others to claim again.</p>
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button onclick="window.location.href='${window.location.pathname}'" style="background: #6c757d;">Cancel</button>
+        <button onclick="confirmUnclaim('${productId}', '${token}')">Yes, Unclaim</button>
+      </div>
+      <div id="unclaimResult" style="margin-top: 20px;"></div>
+    `;
+  } catch (error) {
+    console.error('Error verifying unclaim:', error);
+    document.getElementById('accessForm').innerHTML = `
+      <h2>❌ Error</h2>
+      <p style="color: #dc3545;">There was an error processing your request. Please try again.</p>
+    `;
+  }
+}
+
+// Confirm and process the unclaim
+async function confirmUnclaim(productId, token) {
+  const resultDiv = document.getElementById('unclaimResult');
+  resultDiv.innerHTML = '<p style="color: #0c5460;">Processing...</p>';
+  
+  try {
+    // Clear the claim data
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/products?id=eq.${productId}&unclaim_token=eq.${token}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          guest_claimer_name: null,
+          guest_claimer_email: null,
+          claimed_at: null,
+          claimed_by: null,
+          unclaim_token: null
+        })
+      }
+    );
+    
+    if (response.ok) {
+      document.getElementById('accessForm').innerHTML = `
+        <h2>✅ Item Unclaimed</h2>
+        <p style="color: #155724;">The item has been successfully unclaimed and is now available for others.</p>
+        <p style="margin-top: 20px;">Thank you for letting us know!</p>
+      `;
+    } else {
+      resultDiv.innerHTML = '<p style="color: #dc3545;">Failed to unclaim. Please try again.</p>';
+    }
+  } catch (error) {
+    console.error('Error unclaiming:', error);
+    resultDiv.innerHTML = '<p style="color: #dc3545;">An error occurred. Please try again.</p>';
   }
 }
 
@@ -204,6 +309,9 @@ async function confirmClaim() {
   showMessage('claimMessage', 'Claiming item...', 'info');
   
   try {
+    // Generate unclaim token for email verification
+    const unclaimToken = generateUnclaimToken();
+    
     // Update product directly with guest claim info
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/products?id=eq.${currentProductToClaim.id}`,
@@ -217,13 +325,22 @@ async function confirmClaim() {
         body: JSON.stringify({
           guest_claimer_name: name,
           guest_claimer_email: email,
-          claimed_at: new Date().toISOString()
+          claimed_at: new Date().toISOString(),
+          unclaim_token: unclaimToken
         })
       }
     );
     
     if (response.ok) {
-      showMessage('claimMessage', 'Item claimed successfully! The list owner has been notified.', 'success');
+      const claimedProduct = await response.json();
+      
+      // Send notification to list owner
+      await sendClaimNotification(currentProductToClaim.id, name);
+      
+      // Send confirmation email to claimer with unclaim link
+      await sendClaimerConfirmation(name, email, currentProductToClaim.name, unclaimToken, currentProductToClaim.id);
+      
+      showMessage('claimMessage', 'Item claimed! Check your email for confirmation.', 'success');
       
       setTimeout(() => {
         closeClaimModal();
@@ -238,6 +355,94 @@ async function confirmClaim() {
   } catch (error) {
     console.error('Error claiming product:', error);
     showMessage('claimMessage', 'Error claiming item. Please try again.', 'error');
+  }
+}
+
+// Generate a random token for unclaiming
+function generateUnclaimToken() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < 32; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
+
+// Send notification to list owner about the claim
+async function sendClaimNotification(productId, claimerName) {
+  try {
+    // Get product and list info
+    const productRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/products?id=eq.${productId}&select=*,lists(*)`,
+      {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    const products = await productRes.json();
+    if (!products || products.length === 0) return;
+    
+    const product = products[0];
+    const list = product.lists;
+    
+    // Get list owner info
+    const userRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/users?id=eq.${list.user_id}&select=email,name`,
+      {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    const users = await userRes.json();
+    if (!users || users.length === 0) return;
+    
+    const owner = users[0];
+    
+    // Call the claim notification edge function
+    await fetch(`${SUPABASE_URL}/functions/v1/claim-notification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+        owner_email: owner.email,
+        owner_name: owner.name,
+        list_name: list.name,
+        product_name: product.name,
+        claimer_name: claimerName,
+        notification_level: list.notification_level || 'both'
+      })
+    });
+  } catch (error) {
+    console.error('Error sending claim notification:', error);
+  }
+}
+
+// Send confirmation email to the person who claimed
+async function sendClaimerConfirmation(claimerName, claimerEmail, productName, unclaimToken, productId) {
+  try {
+    const unclaimUrl = `${window.location.origin}${window.location.pathname}?unclaim=${unclaimToken}&product=${productId}`;
+    
+    await fetch(`${SUPABASE_URL}/functions/v1/send-claimer-confirmation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+        claimer_name: claimerName,
+        claimer_email: claimerEmail,
+        product_name: productName,
+        unclaim_url: unclaimUrl
+      })
+    });
+  } catch (error) {
+    console.error('Error sending claimer confirmation:', error);
   }
 }
 
