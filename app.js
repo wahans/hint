@@ -358,12 +358,15 @@ async function confirmClaim() {
       // Send confirmation email to claimer with unclaim link and buy link
       await sendClaimerConfirmation(name, email, currentProductToClaim.name, currentProductToClaim.url, unclaimToken, currentProductToClaim.id);
       
+      // Award points for claiming (10 points)
+      await awardClaimPoints(email, name, currentProductToClaim.id);
+      
       // Show success with Buy Now option
       const productUrl = currentProductToClaim.url;
       const productName = currentProductToClaim.name;
       
       document.querySelector('#claimModal .modal').innerHTML = `
-        <h3 style="color: #228855;">🎉 Item Claimed!</h3>
+        <h3 style="color: #228855;">🎉 Item Claimed! +10 pts 🏆</h3>
         <p style="color: #155724; background: #d4edda; padding: 12px; border-radius: 8px; margin: 20px 0;">
           You've successfully claimed <strong>"${productName}"</strong>
         </p>
@@ -754,3 +757,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// Award points for claiming a gift
+async function awardClaimPoints(email, name, productId) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/rpc/award_points`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        p_user_id: null,
+        p_email: email,
+        p_name: name,
+        p_event_type: 'claim',
+        p_points: 10,
+        p_description: 'Claimed a gift',
+        p_product_id: productId,
+        p_list_id: null
+      })
+    });
+  } catch (error) {
+    console.error('Error awarding claim points:', error);
+  }
+}
