@@ -523,3 +523,234 @@ async function sendUnclaimConfirmation(claimerName, claimerEmail, productName) {
     console.error('Error sending unclaim confirmation:', error);
   }
 }
+
+// ============================================
+// SIGNUP / LOGIN FLOW
+// ============================================
+
+function openSignupModal() {
+  document.getElementById('signupModal').classList.add('show');
+  document.getElementById('signupForm').style.display = 'block';
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('signupSuccess').style.display = 'none';
+  document.getElementById('signupMessage').innerHTML = '';
+  document.getElementById('signupName').value = '';
+  document.getElementById('signupEmail').value = '';
+  document.getElementById('signupPassword').value = '';
+  document.getElementById('signupName').focus();
+}
+
+function closeSignupModal() {
+  document.getElementById('signupModal').classList.remove('show');
+}
+
+function showLoginForm() {
+  document.getElementById('signupForm').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('signupSuccess').style.display = 'none';
+  document.getElementById('signupMessage').innerHTML = '';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginEmail').focus();
+}
+
+function showSignupForm() {
+  document.getElementById('signupForm').style.display = 'block';
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('signupSuccess').style.display = 'none';
+  document.getElementById('signupMessage').innerHTML = '';
+  document.getElementById('signupName').focus();
+}
+
+async function handleSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value;
+  
+  if (!name) {
+    showMessage('signupMessage', 'Please enter your name', 'error');
+    return;
+  }
+  
+  if (!email || !validateEmail(email)) {
+    showMessage('signupMessage', 'Please enter a valid email address', 'error');
+    return;
+  }
+  
+  if (!password || password.length < 6) {
+    showMessage('signupMessage', 'Password must be at least 6 characters', 'error');
+    return;
+  }
+  
+  showMessage('signupMessage', 'Creating your account...', 'info');
+  
+  try {
+    // Sign up with Supabase Auth
+    const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+        data: {
+          name: name
+        }
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok && data.id) {
+      // Success! Show success message
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('signupSuccess').style.display = 'block';
+      
+      // Also create user record in users table
+      await createUserRecord(data.id, email, name);
+      
+      // Send welcome email
+      await sendWelcomeEmail(name, email);
+    } else {
+      // Handle errors
+      const errorMsg = data.error_description || data.msg || data.error?.message || 'Failed to create account';
+      showMessage('signupMessage', errorMsg, 'error');
+    }
+  } catch (error) {
+    console.error('Signup error:', error);
+    showMessage('signupMessage', 'An error occurred. Please try again.', 'error');
+  }
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  
+  if (!email || !validateEmail(email)) {
+    showMessage('signupMessage', 'Please enter a valid email address', 'error');
+    return;
+  }
+  
+  if (!password) {
+    showMessage('signupMessage', 'Please enter your password', 'error');
+    return;
+  }
+  
+  showMessage('signupMessage', 'Logging in...', 'info');
+  
+  try {
+    const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok && data.access_token) {
+      showMessage('signupMessage', 'Logged in successfully! Install the extension to manage your hintlists.', 'success');
+      
+      setTimeout(() => {
+        document.getElementById('signupForm').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('signupSuccess').style.display = 'block';
+        // Update success message for login
+        document.getElementById('signupSuccess').querySelector('h3').textContent = 'Welcome Back!';
+        document.getElementById('signupSuccess').querySelector('p').textContent = 
+          'You\'re logged in! Install the hint extension to manage your hintlists.';
+      }, 1500);
+    } else {
+      const errorMsg = data.error_description || data.msg || 'Invalid email or password';
+      showMessage('signupMessage', errorMsg, 'error');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    showMessage('signupMessage', 'An error occurred. Please try again.', 'error');
+  }
+}
+
+async function createUserRecord(userId, email, name) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        id: userId,
+        email: email,
+        name: name
+      })
+    });
+  } catch (error) {
+    console.error('Error creating user record:', error);
+  }
+}
+
+async function sendWelcomeEmail(name, email) {
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/send-welcome-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+        name: name,
+        email: email
+      })
+    });
+  } catch (error) {
+    console.error('Error sending welcome email:', error);
+  }
+}
+
+// Add event listeners for signup/login buttons
+document.addEventListener('DOMContentLoaded', function() {
+  // Signup modal buttons
+  const cancelSignupBtn = document.getElementById('cancelSignupBtn');
+  const confirmSignupBtn = document.getElementById('confirmSignupBtn');
+  const cancelLoginBtn = document.getElementById('cancelLoginBtn');
+  const confirmLoginBtn = document.getElementById('confirmLoginBtn');
+  
+  if (cancelSignupBtn) cancelSignupBtn.addEventListener('click', closeSignupModal);
+  if (confirmSignupBtn) confirmSignupBtn.addEventListener('click', handleSignup);
+  if (cancelLoginBtn) cancelLoginBtn.addEventListener('click', closeSignupModal);
+  if (confirmLoginBtn) confirmLoginBtn.addEventListener('click', handleLogin);
+  
+  // Close modal on overlay click
+  const signupModal = document.getElementById('signupModal');
+  if (signupModal) {
+    signupModal.addEventListener('click', function(e) {
+      if (e.target === signupModal) {
+        closeSignupModal();
+      }
+    });
+  }
+  
+  // Enter key handling for forms
+  const signupPassword = document.getElementById('signupPassword');
+  const loginPassword = document.getElementById('loginPassword');
+  
+  if (signupPassword) {
+    signupPassword.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') handleSignup();
+    });
+  }
+  
+  if (loginPassword) {
+    loginPassword.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') handleLogin();
+    });
+  }
+});
