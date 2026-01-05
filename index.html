@@ -416,9 +416,14 @@
       <div class="cta-box">
         <h3>💡 Want your own hintlist?</h3>
         <p>Create your own hintlists, track prices, and share with friends!</p>
-        <button onclick="window.open('https://chrome.google.com/webstore', '_blank')">
-          Get hint Extension
-        </button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+          <button onclick="openSignupModal()">
+            ✨ Create Free Account
+          </button>
+          <button class="btn-secondary" onclick="window.open('https://chrome.google.com/webstore', '_blank')">
+            Get Extension
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -446,6 +451,79 @@
       <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button id="cancelClaimBtn" class="btn-secondary">Cancel</button>
         <button id="confirmClaimBtn">Claim Item</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Signup Modal -->
+  <div id="signupModal" class="modal-overlay">
+    <div class="modal" style="max-width: 400px;">
+      <h3 style="color: #228855;">✨ Create Your Hintlist</h3>
+      <p style="color: #6c757d; margin-bottom: 20px;">
+        Sign up free to create your own hintlists and share them with friends and family!
+      </p>
+      
+      <div id="signupMessage"></div>
+      
+      <div id="signupForm">
+        <div class="input-group">
+          <label for="signupName">Your Name</label>
+          <input type="text" id="signupName" placeholder="e.g., John Smith">
+        </div>
+        
+        <div class="input-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" placeholder="e.g., john@example.com">
+        </div>
+        
+        <div class="input-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="At least 6 characters">
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button id="cancelSignupBtn" class="btn-secondary">Cancel</button>
+          <button id="confirmSignupBtn">Create Account</button>
+        </div>
+        
+        <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #6c757d;">
+          Already have an account? <a href="#" onclick="showLoginForm(); return false;" style="color: #228855;">Log in</a>
+        </p>
+      </div>
+      
+      <div id="loginForm" style="display: none;">
+        <div class="input-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="e.g., john@example.com">
+        </div>
+        
+        <div class="input-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Your password">
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button id="cancelLoginBtn" class="btn-secondary">Cancel</button>
+          <button id="confirmLoginBtn">Log In</button>
+        </div>
+        
+        <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #6c757d;">
+          Don't have an account? <a href="#" onclick="showSignupForm(); return false;" style="color: #228855;">Sign up</a>
+        </p>
+      </div>
+      
+      <div id="signupSuccess" style="display: none; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 20px;">🎉</div>
+        <h3 style="color: #228855; margin-bottom: 15px;">Account Created!</h3>
+        <p style="color: #6c757d; margin-bottom: 20px;">
+          Check your email to confirm your account, then install the hint extension to start creating hintlists.
+        </p>
+        <button onclick="window.open('https://chrome.google.com/webstore', '_blank'); closeSignupModal();">
+          Get hint Extension
+        </button>
+        <button class="btn-secondary" onclick="closeSignupModal();" style="margin-top: 10px; width: 100%;">
+          Done
+        </button>
       </div>
     </div>
   </div>
