@@ -93,8 +93,8 @@ async function handleUnclaim(token, productId) {
       </div>
       <p style="color: #666; font-size: 14px;">This will make the item available for others to claim again.</p>
       <div style="display: flex; gap: 10px; margin-top: 20px;">
-        <button onclick="window.location.href='${window.location.pathname}'" style="background: #6c757d;">Cancel</button>
-        <button onclick="confirmUnclaim('${productId}', '${token}')" style="background: #dc3545;">Yes, Unclaim</button>
+        <button onclick="window.location.href='${window.location.pathname}'" style="background: #6c757d; color: white;">Cancel</button>
+        <button onclick="confirmUnclaim('${productId}', '${token}')" style="background: #dc3545; color: white;">Yes, Unclaim</button>
       </div>
       <div id="unclaimResult" style="margin-top: 20px;"></div>
     `;
@@ -358,12 +358,32 @@ async function confirmClaim() {
       // Send confirmation email to claimer with unclaim link and buy link
       await sendClaimerConfirmation(name, email, currentProductToClaim.name, currentProductToClaim.url, unclaimToken, currentProductToClaim.id);
       
-      showMessage('claimMessage', 'Item claimed! Check your email for confirmation.', 'success');
+      // Show success with Buy Now option
+      const productUrl = currentProductToClaim.url;
+      const productName = currentProductToClaim.name;
       
-      setTimeout(() => {
-        closeClaimModal();
-        loadHintlist(); // Reload to hide claimed item
-      }, 2000);
+      document.querySelector('#claimModal .modal').innerHTML = `
+        <h3 style="color: #228855;">🎉 Item Claimed!</h3>
+        <p style="color: #155724; background: #d4edda; padding: 12px; border-radius: 8px; margin: 20px 0;">
+          You've successfully claimed <strong>"${productName}"</strong>
+        </p>
+        <p style="color: #666; font-size: 14px;">
+          We've sent a confirmation email to <strong>${email}</strong> with all the details.
+        </p>
+        
+        ${productUrl ? `
+          <div style="background: #f0f9f4; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0 0 15px; font-weight: 600;">Ready to buy this gift?</p>
+            <a href="${productUrl}" target="_blank" style="display: inline-block; background: #228855; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+              🛒 Buy Now
+            </a>
+          </div>
+        ` : ''}
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button onclick="closeClaimModal(); loadHintlist();" style="flex: 1; background: #6c757d; color: white;">Done</button>
+        </div>
+      `;
     } else {
       const error = await response.json();
       console.error('Claim error:', error);
