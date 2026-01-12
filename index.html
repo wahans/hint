@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hint - View Hintlist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Leckerli+One&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f9f4;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: #228855;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      font-size: 48px;
+      font-weight: 400;
+      margin-bottom: 8px;
+      font-family: 'Leckerli One', cursive;
+      letter-spacing: 2px;
+    }
+
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .access-form {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(34, 136, 85, 0.15);
+      margin-top: 20px;
+    }
+
+    .access-form h2 {
+      color: #228855;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .access-form p {
+      color: #6c757d;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #495057;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #228855;
+    }
+
+    button {
+      background: #228855;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    button:hover {
+      background: #1a6b42;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(34, 136, 85, 0.3);
+    }
+
+    button:disabled {
+      background: #adb5bd;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .hintlist-view {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(34, 136, 85, 0.15);
+      margin-top: 20px;
+      display: none;
+    }
+
+    .hintlist-header {
+      border-bottom: 2px solid #228855;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hintlist-header h2 {
+      color: #228855;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .hintlist-meta {
+      color: #6c757d;
+      font-size: 14px;
+    }
+
+    .product-item {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border-left: 4px solid #228855;
+      transition: all 0.2s;
+    }
+
+    .product-item:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateX(4px);
+    }
+
+    .product-content {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .product-image {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #e9ecef;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      background: #e9ecef;
+      color: #adb5bd;
+    }
+
+    .product-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .product-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #212529;
+      margin-bottom: 6px;
+    }
+
+    .product-price {
+      font-size: 16px;
+      color: #228855;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .product-url {
+      font-size: 12px;
+      color: #6c757d;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-small {
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 6px;
+      flex: 1;
+      min-width: 130px;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .message {
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #6c757d;
+      font-size: 16px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .cta-box {
+      background: #228855;
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .cta-box h3 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .cta-box p {
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+
+    .cta-box button {
+      background: white;
+      color: #228855;
+    }
+
+    .cta-box button:hover {
+      background: #f8f9fa;
+      color: #1a6b42;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .modal h3 {
+      color: #228855;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: #6c757d;
+      font-size: 14px;
+    }
+
+    .footer a {
+      color: #228855;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 36px;
+      }
+
+      .container {
+        padding: 15px;
+      }
+
+      .access-form, .hintlist-view {
+        padding: 20px;
+      }
+
+      .product-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .product-image {
+        width: 100%;
+        height: 150px;
+      }
+
+      .product-actions {
+        flex-direction: column;
+      }
+
+      .btn-small {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>hint</h1>
+    <p>The smarter way to share your hintlist</p>
+  </div>
+
+  <div class="container">
+    <!-- Access Code Form -->
+    <div id="accessForm" class="access-form">
+      <h2>Enter Access Code</h2>
+      <p>Enter the access code you received to view this hintlist.</p>
+
+      <div id="formMessage"></div>
+
+      <div class="input-group">
+        <label for="accessCode">Access Code</label>
+        <input type="text" id="accessCode" placeholder="e.g., ABC123XY" autofocus>
+      </div>
+
+      <button id="loadHintlistBtn">View Hintlist</button>
+    </div>
+
+    <!-- Hintlist View -->
+    <div id="hintlistView" class="hintlist-view">
+      <div class="hintlist-header">
+        <h2 id="hintlistName">Loading...</h2>
+        <div class="hintlist-meta">
+          <span id="itemCount">0 items</span>
+        </div>
+      </div>
+
+      <div id="productsContainer"></div>
+
+      <!-- CTA Box -->
+      <div class="cta-box">
+        <h3>Want your own hintlist?</h3>
+        <p>Create your own hintlists, track prices, and share with friends!</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+          <button onclick="openSignupModal()">
+            Create Free Account
+          </button>
+          <button class="btn-secondary" onclick="window.open('https://chrome.google.com/webstore', '_blank')">
+            Get Extension
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Powered by <a href="#">hint</a> - Track products, share wishlists, never miss a deal.</p>
+  </div>
+
+  <!-- Claim Modal -->
+  <div id="claimModal" class="modal-overlay">
+    <div class="modal">
+      <h3>Claim this item</h3>
+      <p style="color: #6c757d; margin-bottom: 20px;">
+        Let the list owner know you'll be getting this gift! Your name will be kept secret from them.
+      </p>
+
+      <div id="claimMessage"></div>
+
+      <div class="input-group">
+        <label for="claimerName">Your Name</label>
+        <input type="text" id="claimerName" placeholder="e.g., John Smith">
+      </div>
+
+      <div class="input-group">
+        <label for="claimerEmail">Your Email</label>
+        <input type="email" id="claimerEmail" placeholder="e.g., john@example.com">
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button id="cancelClaimBtn" class="btn-secondary">Cancel</button>
+        <button id="confirmClaimBtn">Claim Item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signup Modal -->
+  <div id="signupModal" class="modal-overlay">
+    <div class="modal" style="max-width: 400px;">
+      <h3 style="color: #228855;">Create Your Hintlist</h3>
+      <p style="color: #6c757d; margin-bottom: 20px;">
+        Sign up free to create your own hintlists and share them with friends and family!
+      </p>
+
+      <div id="signupMessage"></div>
+
+      <div id="signupForm">
+        <div class="input-group">
+          <label for="signupName">Your Name</label>
+          <input type="text" id="signupName" placeholder="e.g., John Smith">
+        </div>
+
+        <div class="input-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" placeholder="e.g., john@example.com">
+        </div>
+
+        <div class="input-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="At least 6 characters">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button id="cancelSignupBtn" class="btn-secondary">Cancel</button>
+          <button id="confirmSignupBtn">Create Account</button>
+        </div>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #6c757d;">
+          Already have an account? <a href="#" onclick="showLoginForm(); return false;" style="color: #228855;">Log in</a>
+        </p>
+      </div>
+
+      <div id="loginForm" style="display: none;">
+        <div class="input-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="e.g., john@example.com">
+        </div>
+
+        <div class="input-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Your password">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button id="cancelLoginBtn" class="btn-secondary">Cancel</button>
+          <button id="confirmLoginBtn">Log In</button>
+        </div>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #6c757d;">
+          Don't have an account? <a href="#" onclick="showSignupForm(); return false;" style="color: #228855;">Sign up</a>
+        </p>
+      </div>
+
+      <div id="signupSuccess" style="display: none; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 20px;">🎉</div>
+        <h3 style="color: #228855; margin-bottom: 15px;">Account Created!</h3>
+        <p style="color: #6c757d; margin-bottom: 20px;">
+          Check your email to confirm your account, then install the hint extension to start creating hintlists.
+        </p>
+        <button onclick="window.open('https://chrome.google.com/webstore', '_blank'); closeSignupModal();">
+          Get hint Extension
+        </button>
+        <button class="btn-secondary" onclick="closeSignupModal();" style="margin-top: 10px; width: 100%;">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const SUPABASE_URL = 'https://whbqyxtjmbordcjtqyoq.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoYnF5eHRqbWJvcmRjanRxeW9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwMzY0MDksImV4cCI6MjA4MjYxMjQwOX0.GiTCNNNcMVuGdd45AJbXFB6eS0a5enXoUW7nfkZPD3k';
+
+    let currentList = null;
+    let currentProducts = [];
+    let currentProductToClaim = null;
+
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', () => {
+      setupEventListeners();
+      checkURLForCode();
+    });
+
+    function setupEventListeners() {
+      document.getElementById('loadHintlistBtn').addEventListener('click', loadHintlist);
+      document.getElementById('accessCode').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') loadHintlist();
+      });
+      document.getElementById('cancelClaimBtn').addEventListener('click', closeClaimModal);
+      document.getElementById('confirmClaimBtn').addEventListener('click', confirmClaim);
+
+      // Signup modal buttons
+      document.getElementById('cancelSignupBtn').addEventListener('click', closeSignupModal);
+      document.getElementById('confirmSignupBtn').addEventListener('click', handleSignup);
+      document.getElementById('cancelLoginBtn').addEventListener('click', closeSignupModal);
+      document.getElementById('confirmLoginBtn').addEventListener('click', handleLogin);
+
+      // Close modals on overlay click
+      document.getElementById('claimModal').addEventListener('click', function(e) {
+        if (e.target === this) closeClaimModal();
+      });
+      document.getElementById('signupModal').addEventListener('click', function(e) {
+        if (e.target === this) closeSignupModal();
+      });
+
+      // Enter key handling
+      document.getElementById('signupPassword').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleSignup();
+      });
+      document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleLogin();
+      });
+    }
+
+    // Check if access code is in URL
+    function checkURLForCode() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+
+      if (code) {
+        document.getElementById('accessCode').value = code;
+        loadHintlist();
+      }
+    }
+
+    async function loadHintlist() {
+      const code = document.getElementById('accessCode').value.trim().toUpperCase();
+
+      if (!code) {
+        showMessage('formMessage', 'Please enter an access code', 'error');
+        return;
+      }
+
+      showMessage('formMessage', 'Loading hintlist...', 'info');
+
+      try {
+        // Find list by access code (FIXED: using access_code instead of share_code)
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/lists?access_code=eq.${code}&is_public=eq.true&select=*`,
+          {
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        const lists = await response.json();
+
+        if (!response.ok || lists.length === 0) {
+          showMessage('formMessage', 'Invalid access code or hintlist not found. Please check the code and try again.', 'error');
+          return;
+        }
+
+        currentList = lists[0];
+
+        // Load products for this list
+        const productsResponse = await fetch(
+          `${SUPABASE_URL}/rest/v1/products?list_id=eq.${currentList.id}&select=*`,
+          {
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        currentProducts = await productsResponse.json();
+
+        // Display the hintlist
+        displayHintlist();
+
+      } catch (error) {
+        console.error('Error loading hintlist:', error);
+        showMessage('formMessage', 'Error loading hintlist. Please check your connection and try again.', 'error');
+      }
+    }
+
+    function displayHintlist() {
+      // Hide form, show hintlist
+      document.getElementById('accessForm').style.display = 'none';
+      document.getElementById('hintlistView').style.display = 'block';
+
+      // Update header
+      document.getElementById('hintlistName').textContent = currentList.name;
+
+      // Filter out claimed items
+      const availableProducts = currentProducts.filter(p => !p.claimed_by && !p.guest_claimer_email);
+
+      document.getElementById('itemCount').textContent = `${availableProducts.length} available items`;
+
+      // Display products
+      const container = document.getElementById('productsContainer');
+      container.innerHTML = '';
+
+      if (availableProducts.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🎁</div>
+            <div style="font-size: 18px; margin-bottom: 8px;">All items have been claimed!</div>
+            <div style="font-size: 14px;">Check back later for new additions.</div>
+          </div>
+        `;
+        return;
+      }
+
+      availableProducts.forEach(product => {
+        const productDiv = document.createElement('div');
+        productDiv.className = 'product-item';
+
+        // Product image
+        let imageHTML = '';
+        if (product.image_url) {
+          imageHTML = `
+            <div class="product-image">
+              <img src="${product.image_url}" alt="${escapeHtml(product.name)}" onerror="this.parentElement.innerHTML='<div class=\\'product-image-placeholder\\'>📦</div>'">
+            </div>
+          `;
+        } else {
+          imageHTML = `
+            <div class="product-image">
+              <div class="product-image-placeholder">📦</div>
+            </div>
+          `;
+        }
+
+        let priceHTML = '';
+        if (product.current_price) {
+          priceHTML = `<div class="product-price">$${product.current_price}</div>`;
+        }
+
+        let urlHTML = '';
+        if (product.url) {
+          try {
+            const domain = new URL(product.url).hostname.replace('www.', '');
+            urlHTML = `<div class="product-url">${domain}</div>`;
+          } catch (e) {
+            urlHTML = '';
+          }
+        }
+
+        const escapedName = escapeHtml(product.name);
+        const escapedUrl = product.url ? escapeHtml(product.url) : '';
+
+        productDiv.innerHTML = `
+          <div class="product-content">
+            ${imageHTML}
+            <div class="product-details">
+              <div class="product-name">${escapedName}</div>
+              ${priceHTML}
+              ${urlHTML}
+            </div>
+          </div>
+          <div class="product-actions">
+            ${product.url ? `<button class="btn-small btn-secondary" onclick="window.open('${escapedUrl}', '_blank')">View Product</button>` : ''}
+            <button class="btn-small" onclick="openClaimModal('${product.id}', '${escapedName.replace(/'/g, "\\'")}', '${escapedUrl.replace(/'/g, "\\'")}')">I'll Buy This</button>
+          </div>
+        `;
+
+        container.appendChild(productDiv);
+      });
+
+      // Update URL with access code (for easy sharing)
+      const newURL = `${window.location.origin}${window.location.pathname}?code=${currentList.access_code}`;
+      window.history.replaceState({}, '', newURL);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function openClaimModal(productId, productName, productUrl) {
+      currentProductToClaim = { id: productId, name: productName, url: productUrl };
+      document.getElementById('claimModal').classList.add('show');
+      document.getElementById('claimerName').focus();
+
+      // Clear previous inputs
+      document.getElementById('claimerName').value = '';
+      document.getElementById('claimerEmail').value = '';
+      document.getElementById('claimMessage').innerHTML = '';
+    }
+
+    function closeClaimModal() {
+      document.getElementById('claimModal').classList.remove('show');
+      currentProductToClaim = null;
+    }
+
+    async function confirmClaim() {
+      const name = document.getElementById('claimerName').value.trim();
+      const email = document.getElementById('claimerEmail').value.trim();
+
+      if (!name || !email) {
+        showMessage('claimMessage', 'Please enter your name and email', 'error');
+        return;
+      }
+
+      if (!validateEmail(email)) {
+        showMessage('claimMessage', 'Please enter a valid email address', 'error');
+        return;
+      }
+
+      showMessage('claimMessage', 'Claiming item...', 'info');
+
+      try {
+        // Generate unclaim token
+        const unclaimToken = generateToken();
+
+        // Update product with guest claim info
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/products?id=eq.${currentProductToClaim.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation'
+            },
+            body: JSON.stringify({
+              guest_claimer_name: name,
+              guest_claimer_email: email,
+              claimed_at: new Date().toISOString(),
+              unclaim_token: unclaimToken
+            })
+          }
+        );
+
+        if (response.ok) {
+          // Send notification to list owner
+          await sendClaimNotification(currentProductToClaim.id, name);
+
+          // Send confirmation email to claimer
+          await sendClaimerConfirmation(name, email, currentProductToClaim.name, currentProductToClaim.url, unclaimToken, currentProductToClaim.id);
+
+          // Show success with Buy Now option
+          const productUrl = currentProductToClaim.url;
+          const productName = currentProductToClaim.name;
+
+          document.querySelector('#claimModal .modal').innerHTML = `
+            <h3 style="color: #228855;">Item Claimed!</h3>
+            <p style="color: #155724; background: #d4edda; padding: 12px; border-radius: 8px; margin: 20px 0;">
+              You've successfully claimed <strong>"${escapeHtml(productName)}"</strong>
+            </p>
+            <p style="color: #666; font-size: 14px;">
+              We've sent a confirmation email to <strong>${escapeHtml(email)}</strong> with all the details.
+            </p>
+
+            ${productUrl ? `
+              <div style="background: #f0f9f4; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+                <p style="margin: 0 0 15px; font-weight: 600;">Ready to buy this gift?</p>
+                <a href="${escapeHtml(productUrl)}" target="_blank" style="display: inline-block; background: #228855; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                  Buy Now
+                </a>
+              </div>
+            ` : ''}
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+              <button onclick="location.reload();" style="flex: 1;">Done</button>
+            </div>
+          `;
+        } else {
+          const error = await response.json();
+          console.error('Claim error:', error);
+          showMessage('claimMessage', 'Failed to claim item. It may have already been claimed.', 'error');
+        }
+
+      } catch (error) {
+        console.error('Error claiming product:', error);
+        showMessage('claimMessage', 'Error claiming item. Please try again.', 'error');
+      }
+    }
+
+    function generateToken() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let token = '';
+      for (let i = 0; i < 32; i++) {
+        token += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return token;
+    }
+
+    async function sendClaimNotification(productId, claimerName) {
+      try {
+        // Get product and list info
+        const productRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/products?id=eq.${productId}&select=*,lists(*)`,
+          {
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        const products = await productRes.json();
+        if (!products || products.length === 0) return;
+
+        const product = products[0];
+        const list = product.lists;
+
+        // Get list owner info
+        const userRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/users?id=eq.${list.user_id}&select=email,name`,
+          {
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        const users = await userRes.json();
+        if (!users || users.length === 0) return;
+
+        const owner = users[0];
+
+        // Call the claim notification edge function
+        await fetch(`${SUPABASE_URL}/functions/v1/claim-notification`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({
+            owner_email: owner.email,
+            owner_name: owner.name,
+            list_name: list.name,
+            product_name: product.name,
+            claimer_name: claimerName,
+            notification_level: list.notification_level || 'both'
+          })
+        });
+      } catch (error) {
+        console.error('Error sending claim notification:', error);
+      }
+    }
+
+    async function sendClaimerConfirmation(claimerName, claimerEmail, productName, productUrl, unclaimToken, productId) {
+      try {
+        const unclaimUrl = `${window.location.origin}${window.location.pathname}?unclaim=${unclaimToken}&product=${productId}`;
+
+        await fetch(`${SUPABASE_URL}/functions/v1/send-claimer-confirmation`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({
+            claimer_name: claimerName,
+            claimer_email: claimerEmail,
+            product_name: productName,
+            product_url: productUrl || null,
+            unclaim_url: unclaimUrl
+          })
+        });
+      } catch (error) {
+        console.error('Error sending claimer confirmation:', error);
+      }
+    }
+
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    function showMessage(elementId, text, type) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.className = `message ${type}`;
+        el.textContent = text;
+
+        if (type === 'success') {
+          setTimeout(() => {
+            el.innerHTML = '';
+            el.className = '';
+          }, 4000);
+        }
+      }
+    }
+
+    // ============================================
+    // SIGNUP / LOGIN FLOW
+    // ============================================
+
+    function openSignupModal() {
+      document.getElementById('signupModal').classList.add('show');
+      document.getElementById('signupForm').style.display = 'block';
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('signupSuccess').style.display = 'none';
+      document.getElementById('signupMessage').innerHTML = '';
+      document.getElementById('signupName').value = '';
+      document.getElementById('signupEmail').value = '';
+      document.getElementById('signupPassword').value = '';
+      document.getElementById('signupName').focus();
+    }
+
+    function closeSignupModal() {
+      document.getElementById('signupModal').classList.remove('show');
+    }
+
+    function showLoginForm() {
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('signupSuccess').style.display = 'none';
+      document.getElementById('signupMessage').innerHTML = '';
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('loginEmail').focus();
+    }
+
+    function showSignupForm() {
+      document.getElementById('signupForm').style.display = 'block';
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('signupSuccess').style.display = 'none';
+      document.getElementById('signupMessage').innerHTML = '';
+      document.getElementById('signupName').focus();
+    }
+
+    async function handleSignup() {
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+
+      if (!name) {
+        showMessage('signupMessage', 'Please enter your name', 'error');
+        return;
+      }
+
+      if (!email || !validateEmail(email)) {
+        showMessage('signupMessage', 'Please enter a valid email address', 'error');
+        return;
+      }
+
+      if (!password || password.length < 6) {
+        showMessage('signupMessage', 'Password must be at least 6 characters', 'error');
+        return;
+      }
+
+      showMessage('signupMessage', 'Creating your account...', 'info');
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+            data: {
+              name: name
+            }
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.id) {
+          document.getElementById('signupForm').style.display = 'none';
+          document.getElementById('signupSuccess').style.display = 'block';
+
+          // Create user record
+          await createUserRecord(data.id, email, name);
+        } else {
+          const errorMsg = data.error_description || data.msg || data.error?.message || 'Failed to create account';
+          showMessage('signupMessage', errorMsg, 'error');
+        }
+      } catch (error) {
+        console.error('Signup error:', error);
+        showMessage('signupMessage', 'An error occurred. Please try again.', 'error');
+      }
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email || !validateEmail(email)) {
+        showMessage('signupMessage', 'Please enter a valid email address', 'error');
+        return;
+      }
+
+      if (!password) {
+        showMessage('signupMessage', 'Please enter your password', 'error');
+        return;
+      }
+
+      showMessage('signupMessage', 'Logging in...', 'info');
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.access_token) {
+          showMessage('signupMessage', 'Logged in successfully!', 'success');
+
+          setTimeout(() => {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupSuccess').style.display = 'block';
+            document.getElementById('signupSuccess').querySelector('h3').textContent = 'Welcome Back!';
+            document.getElementById('signupSuccess').querySelector('p').textContent =
+              'You\'re logged in! Install the hint extension to manage your hintlists.';
+          }, 1500);
+        } else {
+          const errorMsg = data.error_description || data.msg || 'Invalid email or password';
+          showMessage('signupMessage', errorMsg, 'error');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        showMessage('signupMessage', 'An error occurred. Please try again.', 'error');
+      }
+    }
+
+    async function createUserRecord(userId, email, name) {
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            id: userId,
+            email: email,
+            name: name
+          })
+        });
+      } catch (error) {
+        console.error('Error creating user record:', error);
+      }
+    }
+  </script>
+</body>
+</html>
