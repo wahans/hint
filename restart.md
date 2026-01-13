@@ -6,9 +6,9 @@ Quick reference for picking up where you left off.
 
 ---
 
-## Current Status: 95% MVP Complete
+## Current Status: 98% MVP Complete
 
-**Phase:** Polishing & Enhancement (post-MVP)
+**Phase:** Mobile App Polish & TestFlight Testing
 
 ---
 
@@ -20,30 +20,44 @@ Quick reference for picking up where you left off.
 - **Claiming** - Secret claims, guest claiming (no account needed), notifications
 - **Price Tracking** - Daily cron jobs for Amazon/Walmart/Target, alerts
 - **Emails** - Key date reminders (60/30/15 days), claim notifications, price drops
-- **Branding** - Green theme (#228855), "hintlist" terminology, dark mode
-- **Mobile Foundation** - React Native/Expo scaffolding with navigation and auth
+- **Branding** - Green theme (#228855), "wishlist" terminology, dark mode
+- **Web Viewer** - Working with access code validation
+- **Mobile App** - React Native/Expo with full API integration
 
 ---
 
-## Needs Attention (High Priority Bugs)
+## Mobile App Status (TestFlight Build 3)
 
-1. **Web viewer** - Working. Uses "wishlist" terminology. Green branding (#228855). Access code validation uses `access_code` field with `is_public=true` check.
-2. **Mobile app** - CONNECTED: Friends API and leaderboard now connected to real Supabase data via new services (friends.service.ts, leaderboard.service.ts)
+**Completed Today (Jan 13, 2026):**
+- Added hint logo to login screen
+- Leaderboard now shows This Week / This Month / All Time
+- Product detail modal with "Open in Browser" action
+- Fixed three-dot menu positioning and added confirmation dialogs
+- Friends API connected (friends.service.ts)
+- Leaderboard API connected (leaderboard.service.ts)
+- App Store Connect ID configured in eas.json for easy deploys
+
+**Deploy to TestFlight:**
+```bash
+cd hint-mobile-test
+eas build --platform ios --profile production --non-interactive
+eas submit --platform ios --non-interactive
+```
 
 ---
 
 ## Next Up (Planned Features)
 
-1. **Leaderboard & Gamification** - Points, badges, anti-spam (schema ready, no UI)
-2. **UI Polish Phases 2-6** - Button cleanup, visual hierarchy, animations
-3. **Enhanced Price Tracking** - History charts, more retailers
-4. **Mobile App Completion** - Push notifications, barcode scanning, deep linking
+1. **Settings Enhancement** - Password change, more notification options
+2. **List Actions** - Edit list, share list, delete list (currently show alerts)
+3. **Push Notifications** - OneSignal integration for price drops, claims
+4. **Mobile Polish** - Barcode scanning, deep linking, share extension
 
 ---
 
 ## Long-term Vision
 
-- **6 months:** 1,000+ users, mobile app live, gamification
+- **6 months:** 1,000+ users, mobile app live on App Store, gamification
 - **1 year:** 10,000+ users, auto-purchase beta, affiliate revenue
 - **2 years:** 100,000+ users, crypto payments, AI recommendations
 
@@ -53,22 +67,23 @@ Quick reference for picking up where you left off.
 
 **Check current state:**
 ```
-Read ~/Documents/hint-parcel/restart.md. What should I work on next?
+Read restart.md. What should I work on next?
 ```
 
-**Test web viewer:**
+**Test web viewer locally:**
 ```
-Open http://localhost:8080/?code=YOUR_ACCESS_CODE after running: cd hint-gh-pages && python3 -m http.server 8080
-```
-
-**Mobile app (CONNECTED):**
-```
-Friends API and leaderboard connected on Jan 13, 2026. New services: friends.service.ts, leaderboard.service.ts. Screens updated: FriendsListsScreen.tsx, LeaderboardScreen.tsx
+cd hint-gh-pages && python3 -m http.server 8080
+# Then open http://localhost:8080/?code=YOUR_ACCESS_CODE
 ```
 
-**Work on gamification:**
+**Run mobile app locally:**
 ```
-Help me implement the leaderboard UI for hint. The Supabase schema is ready in supabase-leaderboard.sql.
+cd hint-mobile-test && npx expo start
+```
+
+**Build & deploy to TestFlight:**
+```
+cd hint-mobile-test && eas build --platform ios --profile production --non-interactive && eas submit --platform ios --non-interactive
 ```
 
 ---
@@ -80,7 +95,8 @@ Help me implement the leaderboard UI for hint. The Supabase schema is ready in s
 | Main Backlog | backlog.md |
 | Chrome Extension | hint-extension/ |
 | Mobile App | hint-mobile-test/ |
-| This File | ~/Documents/hint-parcel/restart.md |
+| Web Viewer | hint-gh-pages/ |
+| This File | restart.md |
 
 ---
 
@@ -89,10 +105,20 @@ Help me implement the leaderboard UI for hint. The Supabase schema is ready in s
 | Layer | Technology |
 |-------|------------|
 | Extension | JavaScript/HTML/CSS, Manifest V3 |
-| Mobile | React Native 0.81.5, Expo 54 |
+| Mobile | React Native 0.81.5, Expo 54, React Native Paper |
 | Backend | Supabase (PostgreSQL + Auth + Edge Functions) |
 | Theme | #228855 primary, #f0f9f4 background |
 | Fonts | Leckerli One (logo), Bradley Hand (emails) |
+| Deploy | EAS Build + Submit, App Store Connect ID: 6757765732 |
+
+---
+
+## Git Repo
+
+Initialized Jan 13, 2026. Key commits:
+- `b407e31` - Initial commit with full project
+- `babb092` - Mobile app UI fixes (logo, leaderboard, product modal)
+- `31cc608` - Add App Store Connect App ID
 
 ---
 
