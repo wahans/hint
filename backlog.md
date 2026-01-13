@@ -292,18 +292,18 @@ Quick reference for developing the Hint project with Claude Code.
 
 | Project | Path |
 |---------|------|
-| **Main Folder** | `/Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/` |
-| **Chrome Extension** | `/Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/hint-extension/` |
-| **Mobile App** | `/Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/hint-mobile-test/` |
-| **GitHub Pages Viewer** | `/Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/hint-gh-pages/` |
-| **Shared Services** | `/Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/hint-extension/shared/` |
-| **This Backlog** | `/Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/backlog.md` |
+| **Main Folder** | `/Users/wallyhansen/Desktop/personal/riversideco/hint-parcel/` |
+| **Chrome Extension** | `/Users/wallyhansen/Desktop/personal/riversideco/hint-parcel/hint-extension/` |
+| **Mobile App** | `/Users/wallyhansen/Desktop/personal/riversideco/hint-parcel/hint-mobile-test/` |
+| **GitHub Pages Viewer** | `/Users/wallyhansen/Desktop/personal/riversideco/hint-parcel/hint-gh-pages/` |
+| **Shared Services** | `/Users/wallyhansen/Desktop/personal/riversideco/hint-parcel/hint-extension/shared/` |
+| **This Backlog** | `/Users/wallyhansen/Desktop/personal/riversideco/hint-parcel/backlog.md` |
 
 ### Quick Start Prompts
 
 **Starting a new session:**
 ```
-Read the backlog at /Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/backlog.md and the TODO list at hint-extension/HINT_TODO_LIST.md. What are the highest priority items to work on?
+Read the backlog at /Users/wallyhansen/Desktop/personal/riversideco/hint-parcel/backlog.md and the TODO list at hint-extension/HINT_TODO_LIST.md. What are the highest priority items to work on?
 ```
 
 **Extension work:**
@@ -345,7 +345,7 @@ Read supabase-leaderboard.sql and supabase-price-alerts.sql to understand the sc
 **Extension Development:**
 ```bash
 # Navigate to extension
-cd "/Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/hint-extension"
+cd "/Users/wallyhansen/Desktop/personal/riversideco/hint-parcel/hint-extension"
 
 # Load unpacked extension in Chrome
 # chrome://extensions → Developer mode → Load unpacked → select hint-extension folder
@@ -354,7 +354,7 @@ cd "/Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/hint-extension"
 **Mobile Development:**
 ```bash
 # Navigate to mobile app
-cd "/Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/hint-mobile-test"
+cd "/Users/wallyhansen/Desktop/personal/riversideco/hint-parcel/hint-mobile-test"
 
 # Install dependencies
 npm install
@@ -508,7 +508,7 @@ interface UserStats {
 
 **Quick Status Check Prompt:**
 ```
-Read the backlog at /Users/wallyhansen/Desktop/personal/riverside co/hint-parcel/backlog.md. Summarize:
+Read the backlog at /Users/wallyhansen/Desktop/personal/riversideco/hint-parcel/backlog.md. Summarize:
 1. What's currently in production
 2. Top 3 priority items
 3. Any blocking bugs

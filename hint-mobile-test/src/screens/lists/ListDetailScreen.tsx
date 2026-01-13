@@ -3,8 +3,8 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Text, IconButton, Menu, Divider } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl, Linking, Alert } from 'react-native';
+import { Text, IconButton, Menu, Divider, Portal, Modal, Button } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import type { ListsScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
@@ -22,6 +22,8 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [productModalVisible, setProductModalVisible] = useState(false);
 
   const loadProducts = async (showRefresh = false) => {
     if (showRefresh) setIsRefreshing(true);
@@ -48,6 +50,7 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      title: listName,
       headerRight: () => (
         <Menu
           visible={menuVisible}
@@ -56,14 +59,16 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
             <IconButton
               icon="dots-vertical"
               onPress={() => setMenuVisible(true)}
+              style={styles.headerMenuButton}
             />
           }
+          anchorPosition="bottom"
         >
           <Menu.Item
             leadingIcon="pencil"
             onPress={() => {
               setMenuVisible(false);
-              // TODO: Edit list
+              Alert.alert('Edit List', 'Edit list functionality coming soon');
             }}
             title="Edit List"
           />
@@ -71,7 +76,7 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
             leadingIcon="share-variant"
             onPress={() => {
               setMenuVisible(false);
-              // TODO: Share list
+              Alert.alert('Share List', 'Share list functionality coming soon');
             }}
             title="Share List"
           />
@@ -80,7 +85,14 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
             leadingIcon="delete"
             onPress={() => {
               setMenuVisible(false);
-              // TODO: Delete list
+              Alert.alert(
+                'Delete List',
+                'Are you sure you want to delete this list?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Delete', style: 'destructive', onPress: () => {} },
+                ]
+              );
             }}
             title="Delete List"
             titleStyle={{ color: theme.colors.error }}
@@ -88,16 +100,26 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
         </Menu>
       ),
     });
-  }, [navigation, menuVisible]);
+  }, [navigation, menuVisible, listName]);
 
   const handleRefresh = () => loadProducts(true);
+
+  const handleProductPress = (product: Product) => {
+    setSelectedProduct(product);
+    setProductModalVisible(true);
+  };
+
+  const handleOpenUrl = async () => {
+    if (selectedProduct?.url) {
+      await Linking.openURL(selectedProduct.url);
+      setProductModalVisible(false);
+    }
+  };
 
   const renderProduct = ({ item }: { item: Product }) => (
     <ProductCard
       product={item}
-      onPress={() => {
-        // TODO: Navigate to product detail
-      }}
+      onPress={() => handleProductPress(item)}
     />
   );
 
@@ -132,6 +154,56 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
           }
         />
       )}
+
+      {/* Product Detail Modal */}
+      <Portal>
+        <Modal
+          visible={productModalVisible}
+          onDismiss={() => setProductModalVisible(false)}
+          contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
+        >
+          {selectedProduct && (
+            <View>
+              <Text variant="titleLarge" style={styles.modalTitle}>
+                {selectedProduct.name}
+              </Text>
+
+              {selectedProduct.current_price && (
+                <Text variant="headlineMedium" style={{ color: theme.colors.primary, marginBottom: 8 }}>
+                  ${selectedProduct.current_price.toFixed(2)}
+                </Text>
+              )}
+
+              {selectedProduct.url && (
+                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16 }}>
+                  {new URL(selectedProduct.url).hostname.replace('www.', '')}
+                </Text>
+              )}
+
+              <View style={styles.modalActions}>
+                {selectedProduct.url && (
+                  <Button
+                    mode="contained"
+                    icon="open-in-new"
+                    onPress={handleOpenUrl}
+                    style={styles.modalButton}
+                  >
+                    Open in Browser
+                  </Button>
+                )}
+                <Button
+                  mode="outlined"
+                  icon="close"
+                  onPress={() => setProductModalVisible(false)}
+                  style={styles.modalButton}
+                >
+                  Close
+                </Button>
+              </View>
+            </View>
+          )}
+        </Modal>
+      </Portal>
     </View>
   );
 }
@@ -142,5 +214,22 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+  },
+  headerMenuButton: {
+    marginRight: 4,
+  },
+  modalContainer: {
+    margin: 20,
+    padding: 20,
+    borderRadius: 12,
+  },
+  modalTitle: {
+    marginBottom: 12,
+  },
+  modalActions: {
+    gap: 12,
+  },
+  modalButton: {
+    marginTop: 4,
   },
 });

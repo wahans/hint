@@ -24,7 +24,7 @@ export default function LeaderboardScreen({ navigation }: LeaderboardScreenProps
   const { user } = useAuth();
 
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-  const [period, setPeriod] = useState<'monthly' | 'allTime'>('monthly');
+  const [period, setPeriod] = useState<'weekly' | 'monthly' | 'allTime'>('weekly');
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -34,7 +34,12 @@ export default function LeaderboardScreen({ navigation }: LeaderboardScreenProps
 
     try {
       // Map UI period to API timeframe
-      const timeframe: LeaderboardTimeframe = period === 'monthly' ? 'month' : 'all';
+      const timeframeMap: Record<string, LeaderboardTimeframe> = {
+        weekly: 'week',
+        monthly: 'month',
+        allTime: 'all',
+      };
+      const timeframe: LeaderboardTimeframe = timeframeMap[period];
 
       const result = await leaderboardService.getLeaderboard(timeframe, 20, false);
 
@@ -146,6 +151,7 @@ export default function LeaderboardScreen({ navigation }: LeaderboardScreenProps
             value={period}
             onValueChange={(value) => setPeriod(value as typeof period)}
             buttons={[
+              { value: 'weekly', label: 'This Week' },
               { value: 'monthly', label: 'This Month' },
               { value: 'allTime', label: 'All Time' },
             ]}
@@ -163,6 +169,7 @@ export default function LeaderboardScreen({ navigation }: LeaderboardScreenProps
           value={period}
           onValueChange={(value) => setPeriod(value as typeof period)}
           buttons={[
+            { value: 'weekly', label: 'This Week' },
             { value: 'monthly', label: 'This Month' },
             { value: 'allTime', label: 'All Time' },
           ]}
