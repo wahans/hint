@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hint - View Hintlist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Leckerli+One&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f9f4;
+      min-height: 100vh;
+    }
+    
+    .header {
+      background: #228855;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .header h1 {
+      font-size: 48px;
+      font-weight: 400;
+      margin-bottom: 8px;
+      font-family: 'Leckerli One', cursive;
+      letter-spacing: 2px;
+    }
+    
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .access-form {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(34, 136, 85, 0.15);
+      margin-top: 20px;
+    }
+    
+    .access-form h2 {
+      color: #228855;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    
+    .access-form p {
+      color: #6c757d;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    
+    .input-group {
+      margin-bottom: 20px;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #495057;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+    
+    .input-group input:focus {
+      outline: none;
+      border-color: #228855;
+    }
+    
+    button {
+      background: #228855;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    
+    button:hover {
+      background: #1a6b42;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(34, 136, 85, 0.3);
+    }
+    
+    button:disabled {
+      background: #adb5bd;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .hintlist-view {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(34, 136, 85, 0.15);
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .hintlist-header {
+      border-bottom: 2px solid #228855;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .hintlist-header h2 {
+      color: #228855;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    
+    .hintlist-meta {
+      color: #6c757d;
+      font-size: 14px;
+    }
+    
+    .product-item {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border-left: 4px solid #228855;
+      transition: all 0.2s;
+    }
+    
+    .product-item:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateX(4px);
+    }
+    
+    .product-content {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .product-image {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #e9ecef;
+    }
+    
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .product-image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      background: #e9ecef;
+      color: #adb5bd;
+    }
+    
+    .product-details {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .product-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #212529;
+      margin-bottom: 6px;
+    }
+    
+    .product-price {
+      font-size: 16px;
+      color: #228855;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .product-url {
+      font-size: 12px;
+      color: #6c757d;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .product-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-small {
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 6px;
+      flex: 1;
+      min-width: 130px;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    
+    .message {
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #6c757d;
+      font-size: 16px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+    
+    .cta-box {
+      background: #228855;
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      margin-top: 30px;
+    }
+    
+    .cta-box h3 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+    
+    .cta-box p {
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+    
+    .cta-box button {
+      background: white;
+      color: #228855;
+    }
+    
+    .cta-box button:hover {
+      background: #f8f9fa;
+      color: #1a6b42;
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    
+    .modal h3 {
+      color: #228855;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+    
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 36px;
+      }
+      
+      .container {
+        padding: 15px;
+      }
+      
+      .access-form, .hintlist-view {
+        padding: 20px;
+      }
+      
+      .product-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .product-image {
+        width: 100%;
+        height: 150px;
+      }
+      
+      .product-actions {
+        flex-direction: column;
+      }
+      
+      .btn-small {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>hint</h1>
+    <p>The smarter way to share your hintlist</p>
+  </div>
+  
+  <div class="container">
+    <!-- Access Code Form -->
+    <div id="accessForm" class="access-form">
+      <h2>🔐 Enter Access Code</h2>
+      <p>Enter the access code you received to view this hintlist.</p>
+      
+      <div id="formMessage"></div>
+      
+      <div class="input-group">
+        <label for="accessCode">Access Code</label>
+        <input type="text" id="accessCode" placeholder="e.g., ABC123XY" autofocus>
+      </div>
+      
+      <button id="loadHintlistBtn">View Hintlist</button>
+    </div>
+    
+    <!-- Hintlist View -->
+    <div id="hintlistView" class="hintlist-view">
+      <div class="hintlist-header">
+        <h2 id="hintlistName">Loading...</h2>
+        <div class="hintlist-meta">
+          <span id="itemCount">0 items</span>
+        </div>
+      </div>
+      
+      <div id="productsContainer"></div>
+      
+      <!-- CTA Box -->
+      <div class="cta-box">
+        <h3>💡 Want your own hintlist?</h3>
+        <p>Create your own hintlists, track prices, and share with friends!</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+          <button onclick="openSignupModal()">
+            ✨ Create Free Account
+          </button>
+          <button class="btn-secondary" onclick="window.open('https://chrome.google.com/webstore', '_blank')">
+            Get Extension
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Claim Modal -->
+  <div id="claimModal" class="modal-overlay">
+    <div class="modal">
+      <h3>🎁 Claim this item</h3>
+      <p style="color: #6c757d; margin-bottom: 20px;">
+        Let the list owner know you'll be getting this gift! Your name will be kept secret.
+      </p>
+      
+      <div id="claimMessage"></div>
+      
+      <div class="input-group">
+        <label for="claimerName">Your Name</label>
+        <input type="text" id="claimerName" placeholder="e.g., John Smith">
+      </div>
+      
+      <div class="input-group">
+        <label for="claimerEmail">Your Email</label>
+        <input type="email" id="claimerEmail" placeholder="e.g., john@example.com">
+      </div>
+      
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button id="cancelClaimBtn" class="btn-secondary">Cancel</button>
+        <button id="confirmClaimBtn">Claim Item</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Signup Modal -->
+  <div id="signupModal" class="modal-overlay">
+    <div class="modal" style="max-width: 400px;">
+      <h3 style="color: #228855;">✨ Create Your Hintlist</h3>
+      <p style="color: #6c757d; margin-bottom: 20px;">
+        Sign up free to create your own hintlists and share them with friends and family!
+      </p>
+      
+      <div id="signupMessage"></div>
+      
+      <div id="signupForm">
+        <div class="input-group">
+          <label for="signupName">Your Name</label>
+          <input type="text" id="signupName" placeholder="e.g., John Smith">
+        </div>
+        
+        <div class="input-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" placeholder="e.g., john@example.com">
+        </div>
+        
+        <div class="input-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="At least 6 characters">
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button id="cancelSignupBtn" class="btn-secondary">Cancel</button>
+          <button id="confirmSignupBtn">Create Account</button>
+        </div>
+        
+        <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #6c757d;">
+          Already have an account? <a href="#" onclick="showLoginForm(); return false;" style="color: #228855;">Log in</a>
+        </p>
+      </div>
+      
+      <div id="loginForm" style="display: none;">
+        <div class="input-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="e.g., john@example.com">
+        </div>
+        
+        <div class="input-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Your password">
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button id="cancelLoginBtn" class="btn-secondary">Cancel</button>
+          <button id="confirmLoginBtn">Log In</button>
+        </div>
+        
+        <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #6c757d;">
+          Don't have an account? <a href="#" onclick="showSignupForm(); return false;" style="color: #228855;">Sign up</a>
+        </p>
+      </div>
+      
+      <div id="signupSuccess" style="display: none; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 20px;">🎉</div>
+        <h3 style="color: #228855; margin-bottom: 15px;">Account Created!</h3>
+        <p style="color: #6c757d; margin-bottom: 20px;">
+          Check your email to confirm your account, then install the hint extension to start creating hintlists.
+        </p>
+        <button onclick="window.open('https://chrome.google.com/webstore', '_blank'); closeSignupModal();">
+          Get hint Extension
+        </button>
+        <button class="btn-secondary" onclick="closeSignupModal();" style="margin-top: 10px; width: 100%;">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="app.js"></script>
+</body>
+</html>

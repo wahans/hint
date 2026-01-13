@@ -1,0 +1,49 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \{\
+  "manifest_version": 3,\
+  "name": "SmartList - Wishlist & Price Tracker",\
+  "version": "1.0.0",\
+  "description": "Track products, share wishlists, and get price alerts",\
+  "permissions": [\
+    "storage",\
+    "activeTab",\
+    "tabs"\
+  ],\
+  "host_permissions": [\
+    "https://*/*"\
+  ],\
+  "action": \{\
+    "default_popup": "popup.html",\
+    "default_icon": \{\
+      "16": "icons/icon16.png",\
+      "48": "icons/icon48.png",\
+      "128": "icons/icon128.png"\
+    \}\
+  \},\
+  "background": \{\
+    "service_worker": "background.js"\
+  \},\
+  "content_scripts": [\
+    \{\
+      "matches": ["<all_urls>"],\
+      "js": ["content.js"]\
+    \}\
+  ],\
+  "icons": \{\
+    "16": "icons/icon16.png",\
+    "48": "icons/icon48.png",\
+    "128": "icons/icon128.png"\
+  \},\
+  "web_accessible_resources": [\
+    \{\
+      "resources": ["icons/*"],\
+      "matches": ["<all_urls>"]\
+    \}\
+  ]\
+\}}

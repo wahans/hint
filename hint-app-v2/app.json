@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "hint",
+    "slug": "hint-app-v2",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#228855"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.wahans.hint",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#228855"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2b4ef7eb-69be-4dfc-b698-a327324f2333"
+      }
+    },
+    "owner": "wahans"
+  }
+}
