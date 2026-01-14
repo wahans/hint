@@ -34,6 +34,7 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
   const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Modal states
   const [fabOpen, setFabOpen] = useState(false);
@@ -45,11 +46,16 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
   const loadFriendsLists = async (showRefresh = false) => {
     if (showRefresh) setIsRefreshing(true);
     else setIsLoading(true);
+    setLoadError(null);
 
     try {
       const friendsResult = await friendsService.getFriendsWithLists();
       if (friendsResult.data) {
-        setFriendsData(friendsResult.data);
+        // Filter out any invalid entries
+        const validFriends = (friendsResult.data || []).filter(
+          (f) => f && f.friendId && typeof f.friendId === 'string'
+        );
+        setFriendsData(validFriends);
       } else {
         console.error('Failed to load friends lists:', friendsResult.error?.message);
         setFriendsData([]);
@@ -57,12 +63,17 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
     } catch (error) {
       console.error('Failed to load friends lists:', error);
       setFriendsData([]);
+      setLoadError('Failed to load friends');
     }
 
     try {
       const requestsResult = await friendsService.getPendingRequests();
       if (requestsResult.data) {
-        setPendingRequests(requestsResult.data);
+        // Filter out any invalid entries
+        const validRequests = (requestsResult.data || []).filter(
+          (r) => r && r.id && typeof r.id === 'string'
+        );
+        setPendingRequests(validRequests);
       } else {
         setPendingRequests([]);
       }
@@ -259,6 +270,20 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
     return (
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <LoadingSkeleton count={4} />
+      </View>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <EmptyState
+          icon="alert-circle"
+          title="Something went wrong"
+          description={loadError}
+          actionLabel="Try Again"
+          onAction={() => loadFriendsLists()}
+        />
       </View>
     );
   }

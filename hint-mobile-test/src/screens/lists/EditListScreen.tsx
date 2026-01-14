@@ -2,15 +2,14 @@
  * Hint Mobile - Edit List Screen
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, Share } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import {
   TextInput,
   Button,
   SegmentedButtons,
   HelperText,
   Text,
-  Switch,
   Divider,
   IconButton,
   Surface,
@@ -38,7 +37,6 @@ export default function EditListScreen({ route, navigation }: ListsScreenProps<'
   const [keyDate, setKeyDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notificationLevel, setNotificationLevel] = useState<NotificationLevel>('both');
-  const [shareCode, setShareCode] = useState<string | null>(null);
 
   const loadList = async () => {
     setIsLoading(true);
@@ -50,7 +48,6 @@ export default function EditListScreen({ route, navigation }: ListsScreenProps<'
         setVisibility(list.is_public ? 'public' : 'friends');
         setKeyDate(list.key_date ? new Date(list.key_date) : null);
         setNotificationLevel(list.notification_level || 'both');
-        setShareCode(list.share_code || null);
       } else {
         setError(result.error?.message || 'Failed to load list');
       }
@@ -124,36 +121,6 @@ export default function EditListScreen({ route, navigation }: ListsScreenProps<'
         },
       ]
     );
-  };
-
-  const handleGenerateShareCode = async () => {
-    try {
-      const result = await listService.generateShareCode(listId);
-      if (result.data) {
-        setShareCode(result.data);
-        setVisibility('public');
-      } else {
-        Alert.alert('Error', result.error?.message || 'Failed to generate share code');
-      }
-    } catch (err) {
-      Alert.alert('Error', 'Failed to generate share code');
-    }
-  };
-
-  const handleShareList = async () => {
-    if (!shareCode) {
-      await handleGenerateShareCode();
-    }
-
-    const shareUrl = `https://hint.com/list/${shareCode}`;
-    try {
-      await Share.share({
-        message: `Check out my wishlist "${name}" on Hint!\n${shareUrl}`,
-        url: shareUrl,
-      });
-    } catch (err) {
-      // User cancelled
-    }
   };
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
@@ -286,37 +253,6 @@ export default function EditListScreen({ route, navigation }: ListsScreenProps<'
             {notificationLevel === 'both' && 'Get full details on claims'}
           </Text>
 
-          <Divider style={styles.divider} />
-
-          {/* Share Code */}
-          <Text variant="labelLarge" style={styles.sectionLabel}>
-            Share Code
-          </Text>
-          {shareCode ? (
-            <Surface style={[styles.shareCodeContainer, { backgroundColor: theme.colors.primaryContainer }]} elevation={0}>
-              <Text variant="headlineMedium" style={[styles.shareCode, { color: theme.colors.onPrimaryContainer }]}>
-                {shareCode}
-              </Text>
-              <Button
-                mode="contained"
-                icon="share-variant"
-                onPress={handleShareList}
-                style={styles.shareButton}
-              >
-                Share List
-              </Button>
-            </Surface>
-          ) : (
-            <Button
-              mode="outlined"
-              icon="link-plus"
-              onPress={handleGenerateShareCode}
-              style={styles.generateButton}
-            >
-              Generate Share Code
-            </Button>
-          )}
-
           {error ? (
             <HelperText type="error" visible={!!error}>
               {error}
@@ -405,22 +341,6 @@ const styles = StyleSheet.create({
   dateActions: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  shareCodeContainer: {
-    borderRadius: 12,
-    padding: 20,
-    alignItems: 'center',
-  },
-  shareCode: {
-    fontWeight: '700',
-    letterSpacing: 4,
-    marginBottom: 12,
-  },
-  shareButton: {
-    width: '100%',
-  },
-  generateButton: {
-    marginBottom: 8,
   },
   actions: {
     marginTop: 24,

@@ -68,10 +68,12 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
         <View style={styles.headerButtons}>
           <IconButton
             icon="share-variant"
+            size={24}
             onPress={() => setShareModalVisible(true)}
           />
           <IconButton
             icon="pencil"
+            size={24}
             onPress={() => navigation.navigate('EditList', { listId })}
           />
         </View>
@@ -278,79 +280,80 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
         <Modal
           visible={shareModalVisible}
           onDismiss={() => setShareModalVisible(false)}
-          contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
+          contentContainerStyle={[styles.shareModalContainer, { backgroundColor: theme.colors.surface }]}
         >
-          <Text variant="titleLarge" style={styles.modalTitle}>
-            Share List
-          </Text>
+          <View style={styles.shareModalContent}>
+            <Text variant="titleLarge" style={styles.shareModalTitle}>
+              Share List
+            </Text>
 
-          {listData?.share_code || listData?.access_code ? (
-            <View>
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16 }}>
-                Share this code with friends so they can view your wishlist
-              </Text>
-
-              <Surface style={[styles.shareCodeBox, { backgroundColor: theme.colors.primaryContainer }]} elevation={0}>
-                <Text variant="headlineMedium" style={[styles.shareCodeText, { color: theme.colors.onPrimaryContainer }]}>
-                  {listData?.share_code || listData?.access_code}
+            {listData?.share_code || listData?.access_code ? (
+              <View>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16 }}>
+                  Share this code with friends so they can view your wishlist
                 </Text>
-              </Surface>
 
-              <View style={styles.shareActions}>
-                <Button
-                  mode="contained"
-                  icon="share"
-                  onPress={handleShareList}
-                  style={styles.shareButton}
-                >
-                  Share Link
-                </Button>
+                <Surface style={[styles.shareCodeBox, { backgroundColor: theme.colors.primaryContainer }]} elevation={0}>
+                  <Text variant="headlineMedium" style={[styles.shareCodeText, { color: theme.colors.onPrimaryContainer }]}>
+                    {listData?.share_code || listData?.access_code}
+                  </Text>
+                </Surface>
 
-                <View style={styles.shareRow}>
+                <View style={styles.shareActions}>
                   <Button
-                    mode="outlined"
-                    icon="content-copy"
-                    onPress={handleCopyShareCode}
-                    style={styles.shareHalfButton}
+                    mode="contained"
+                    icon="share"
+                    onPress={handleShareList}
+                    style={styles.shareButton}
                   >
-                    Copy Code
+                    Share Link
                   </Button>
-                  <Button
-                    mode="outlined"
-                    icon="link"
-                    onPress={handleCopyShareLink}
-                    style={styles.shareHalfButton}
-                  >
-                    Copy Link
-                  </Button>
+
+                  <View style={styles.shareRow}>
+                    <Button
+                      mode="outlined"
+                      icon="content-copy"
+                      onPress={handleCopyShareCode}
+                      style={styles.shareHalfButton}
+                    >
+                      Copy Code
+                    </Button>
+                    <Button
+                      mode="outlined"
+                      icon="link"
+                      onPress={handleCopyShareLink}
+                      style={styles.shareHalfButton}
+                    >
+                      Copy Link
+                    </Button>
+                  </View>
                 </View>
               </View>
-            </View>
-          ) : (
-            <View>
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16 }}>
-                This list is private. Make it public to share with others.
-              </Text>
-              <Button
-                mode="contained"
-                onPress={() => {
-                  setShareModalVisible(false);
-                  navigation.navigate('EditList', { listId });
-                }}
-              >
-                Edit List Settings
-              </Button>
-            </View>
-          )}
+            ) : (
+              <View>
+                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16 }}>
+                  This list is private. Make it public to share with others.
+                </Text>
+                <Button
+                  mode="contained"
+                  onPress={() => {
+                    setShareModalVisible(false);
+                    navigation.navigate('EditList', { listId });
+                  }}
+                >
+                  Edit List Settings
+                </Button>
+              </View>
+            )}
 
-          <Divider style={styles.modalDivider} />
-
-          <Button
-            mode="text"
-            onPress={() => setShareModalVisible(false)}
-          >
-            Close
-          </Button>
+            <Button
+              mode="text"
+              onPress={() => setShareModalVisible(false)}
+              style={styles.shareCloseButton}
+            >
+              Close
+            </Button>
+          </View>
         </Modal>
       </Portal>
     </View>
@@ -401,6 +404,17 @@ const styles = StyleSheet.create({
   closeButton: {
     marginTop: 24,
   },
+  shareModalContainer: {
+    margin: 20,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  shareModalContent: {
+    padding: 24,
+  },
+  shareModalTitle: {
+    marginBottom: 16,
+  },
   shareCodeBox: {
     padding: 20,
     borderRadius: 12,
@@ -423,5 +437,8 @@ const styles = StyleSheet.create({
   },
   shareHalfButton: {
     flex: 1,
+  },
+  shareCloseButton: {
+    marginTop: 20,
   },
 });
