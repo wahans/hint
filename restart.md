@@ -122,10 +122,13 @@ cd hint-mobile-test && eas build --platform ios --profile production --non-inter
 
 ## Git Repo
 
+**GitHub:** https://github.com/wahans/hint
+
 Initialized Jan 13, 2026. Key commits:
 - `b407e31` - Initial commit with full project
 - `babb092` - Mobile app UI fixes (logo, leaderboard, product modal)
 - `31cc608` - Add App Store Connect App ID
+- `6281689` - Add Edit List, Friends management, and Notification features
 
 ---
 
