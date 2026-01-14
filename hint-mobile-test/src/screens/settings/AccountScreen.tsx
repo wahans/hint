@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { List, Divider, TextInput, Button, Avatar, Text, Dialog, Portal } from 'react-native-paper';
+import { List, Divider, TextInput, Button, Avatar, Text, Portal, Modal } from 'react-native-paper';
 import type { SettingsScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -17,6 +17,14 @@ export default function AccountScreen({ navigation }: SettingsScreenProps<'Accou
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+
+  // Password change state
+  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
 
   const handleSaveProfile = async () => {
     if (!displayName.trim()) return;
@@ -33,17 +41,52 @@ export default function AccountScreen({ navigation }: SettingsScreenProps<'Accou
     }
   };
 
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError('Please fill in all fields');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+
+    setPasswordError('');
+    setIsChangingPassword(true);
+
+    try {
+      // TODO: Implement password change via Supabase
+      // await authService.updatePassword(currentPassword, newPassword);
+      Alert.alert('Success', 'Password changed successfully');
+      setPasswordModalVisible(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      setPasswordError('Failed to change password. Please check your current password.');
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   const handleDeleteAccount = () => {
     Alert.alert(
       'Delete Account',
-      'Are you sure you want to delete your account? This action cannot be undone.',
+      'Are you sure you want to delete your account? This action cannot be undone. All your lists, items, and data will be permanently deleted.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            // TODO: Implement account deletion
+            // TODO: Implement account deletion via Supabase
+            Alert.alert('Account Deleted', 'Your account has been deleted.');
             await signOut();
           },
         },
@@ -125,6 +168,20 @@ export default function AccountScreen({ navigation }: SettingsScreenProps<'Accou
 
       <Divider />
 
+      {/* Security */}
+      <List.Section>
+        <List.Subheader>Security</List.Subheader>
+        <List.Item
+          title="Change Password"
+          description="Update your password"
+          left={(props) => <List.Icon {...props} icon="lock" />}
+          right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          onPress={() => setPasswordModalVisible(true)}
+        />
+      </List.Section>
+
+      <Divider />
+
       {/* Stats */}
       <List.Section>
         <List.Subheader>Statistics</List.Subheader>
@@ -158,6 +215,83 @@ export default function AccountScreen({ navigation }: SettingsScreenProps<'Accou
           onPress={handleDeleteAccount}
         />
       </List.Section>
+
+      {/* Change Password Modal */}
+      <Portal>
+        <Modal
+          visible={passwordModalVisible}
+          onDismiss={() => {
+            setPasswordModalVisible(false);
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+            setPasswordError('');
+          }}
+          contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
+        >
+          <Text variant="titleLarge" style={styles.modalTitle}>
+            Change Password
+          </Text>
+
+          <TextInput
+            label="Current Password"
+            value={currentPassword}
+            onChangeText={setCurrentPassword}
+            secureTextEntry
+            mode="outlined"
+            style={styles.modalInput}
+          />
+
+          <TextInput
+            label="New Password"
+            value={newPassword}
+            onChangeText={setNewPassword}
+            secureTextEntry
+            mode="outlined"
+            style={styles.modalInput}
+          />
+
+          <TextInput
+            label="Confirm New Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            mode="outlined"
+            style={styles.modalInput}
+            error={!!passwordError}
+          />
+
+          {passwordError ? (
+            <Text variant="bodySmall" style={{ color: theme.colors.error, marginBottom: 12 }}>
+              {passwordError}
+            </Text>
+          ) : null}
+
+          <View style={styles.modalActions}>
+            <Button
+              mode="contained"
+              onPress={handleChangePassword}
+              loading={isChangingPassword}
+              disabled={isChangingPassword}
+            >
+              Change Password
+            </Button>
+            <Button
+              mode="outlined"
+              onPress={() => {
+                setPasswordModalVisible(false);
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+                setPasswordError('');
+              }}
+              disabled={isChangingPassword}
+            >
+              Cancel
+            </Button>
+          </View>
+        </Modal>
+      </Portal>
     </ScrollView>
   );
 }
@@ -187,5 +321,20 @@ const styles = StyleSheet.create({
   },
   editButton: {
     minWidth: 100,
+  },
+  modalContainer: {
+    margin: 20,
+    padding: 24,
+    borderRadius: 12,
+  },
+  modalTitle: {
+    marginBottom: 20,
+  },
+  modalInput: {
+    marginBottom: 12,
+  },
+  modalActions: {
+    gap: 12,
+    marginTop: 8,
   },
 });

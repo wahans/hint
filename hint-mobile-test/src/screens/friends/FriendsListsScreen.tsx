@@ -16,7 +16,6 @@ import {
   Button,
   IconButton,
   Divider,
-  Surface,
   Badge,
 } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
@@ -48,28 +47,32 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
     else setIsLoading(true);
 
     try {
-      const [friendsResult, requestsResult] = await Promise.all([
-        friendsService.getFriendsWithLists(),
-        friendsService.getPendingRequests(),
-      ]);
-
+      const friendsResult = await friendsService.getFriendsWithLists();
       if (friendsResult.data) {
         setFriendsData(friendsResult.data);
       } else {
         console.error('Failed to load friends lists:', friendsResult.error?.message);
         setFriendsData([]);
       }
-
-      if (requestsResult.data) {
-        setPendingRequests(requestsResult.data);
-      }
     } catch (error) {
       console.error('Failed to load friends lists:', error);
       setFriendsData([]);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
     }
+
+    try {
+      const requestsResult = await friendsService.getPendingRequests();
+      if (requestsResult.data) {
+        setPendingRequests(requestsResult.data);
+      } else {
+        setPendingRequests([]);
+      }
+    } catch (error) {
+      console.error('Failed to load pending requests:', error);
+      setPendingRequests([]);
+    }
+
+    setIsLoading(false);
+    setIsRefreshing(false);
   };
 
   useFocusEffect(
@@ -114,6 +117,7 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
   };
 
   const handleInviteFriend = async () => {
+    setFabOpen(false);
     const userName = user?.name || user?.user_metadata?.name || 'A friend';
     const inviteMessage = `${userName} is inviting you to join Hint - the smarter way to share your wishlist!\n\nDownload the app: https://hint.com/download`;
 
@@ -122,9 +126,9 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
         message: inviteMessage,
       });
     } catch (error) {
-      // User cancelled
+      // User cancelled or error
+      console.log('Share cancelled or failed:', error);
     }
-    setFabOpen(false);
   };
 
   const handleAcceptRequest = async (requestId: string, fromName: string) => {

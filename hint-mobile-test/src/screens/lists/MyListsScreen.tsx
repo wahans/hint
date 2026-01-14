@@ -3,7 +3,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
 import { Text, FAB, Card, IconButton, Chip } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import type { ListsScreenProps } from '../../navigation/types';
@@ -18,6 +18,21 @@ export default function MyListsScreen({ navigation }: ListsScreenProps<'MyLists'
   const [lists, setLists] = useState<List[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <View style={styles.headerTitle}>
+          <Image
+            source={require('../../../assets/logo.png')}
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+          <Text variant="titleLarge" style={{ fontWeight: '600' }}>My Lists</Text>
+        </View>
+      ),
+    });
+  }, [navigation]);
 
   const loadLists = async (showRefresh = false) => {
     if (showRefresh) setIsRefreshing(true);
@@ -118,6 +133,15 @@ export default function MyListsScreen({ navigation }: ListsScreenProps<'MyLists'
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  headerTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerLogo: {
+    width: 32,
+    height: 32,
+    marginRight: 8,
   },
   listContent: {
     padding: 16,

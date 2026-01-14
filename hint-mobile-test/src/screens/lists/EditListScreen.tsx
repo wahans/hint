@@ -197,7 +197,7 @@ export default function EditListScreen({ route, navigation }: ListsScreenProps<'
           </Text>
           <Surface style={[styles.dateContainer, { backgroundColor: theme.colors.surfaceVariant }]} elevation={0}>
             <View style={styles.dateRow}>
-              <Text variant="bodyLarge">
+              <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
                 {keyDate ? keyDate.toLocaleDateString('en-US', {
                   weekday: 'short',
                   year: 'numeric',

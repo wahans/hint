@@ -3,14 +3,14 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Linking, Alert, Image } from 'react-native';
-import { Text, IconButton, Menu, Divider, Portal, Modal, Button, ActivityIndicator } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl, Linking, Alert, Image, Share, Clipboard } from 'react-native';
+import { Text, IconButton, Portal, Modal, Button, Surface, Divider } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import type { ListsScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
-import { productService, claimService } from '../../../shared/services';
-import type { Product } from '../../../shared/types';
+import { productService, claimService, listService } from '../../../shared/services';
+import type { Product, List } from '../../../shared/types';
 import ProductCard from '../../components/ProductCard';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import EmptyState from '../../components/EmptyState';
@@ -21,11 +21,12 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
   const { user } = useAuth();
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [listData, setListData] = useState<List | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productModalVisible, setProductModalVisible] = useState(false);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
 
   const loadProducts = async (showRefresh = false) => {
@@ -33,9 +34,15 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
     else setIsLoading(true);
 
     try {
-      const result = await productService.getProductsByListId(listId);
-      if (result.data) {
-        setProducts(result.data);
+      const [productsResult, listResult] = await Promise.all([
+        productService.getProductsByListId(listId),
+        listService.getList(listId),
+      ]);
+      if (productsResult.data) {
+        setProducts(productsResult.data);
+      }
+      if (listResult.data) {
+        setListData(listResult.data);
       }
     } catch (error) {
       console.error('Failed to load products:', error);
@@ -55,55 +62,19 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
     navigation.setOptions({
       title: listName,
       headerRight: () => (
-        <Menu
-          visible={menuVisible}
-          onDismiss={() => setMenuVisible(false)}
-          anchor={
-            <IconButton
-              icon="dots-vertical"
-              onPress={() => setMenuVisible(true)}
-              style={styles.headerMenuButton}
-            />
-          }
-          anchorPosition="bottom"
-        >
-          <Menu.Item
-            leadingIcon="pencil"
-            onPress={() => {
-              setMenuVisible(false);
-              navigation.navigate('EditList', { listId });
-            }}
-            title="Edit List"
+        <View style={styles.headerButtons}>
+          <IconButton
+            icon="share-variant"
+            onPress={() => setShareModalVisible(true)}
           />
-          <Menu.Item
-            leadingIcon="share-variant"
-            onPress={() => {
-              setMenuVisible(false);
-              Alert.alert('Share List', 'Share list functionality coming soon');
-            }}
-            title="Share List"
+          <IconButton
+            icon="pencil"
+            onPress={() => navigation.navigate('EditList', { listId })}
           />
-          <Divider />
-          <Menu.Item
-            leadingIcon="delete"
-            onPress={() => {
-              setMenuVisible(false);
-              Alert.alert(
-                'Delete List',
-                'Are you sure you want to delete this list?',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  { text: 'Delete', style: 'destructive', onPress: () => {} },
-                ]
-              );
-            }}
-            title="Delete List"
-            titleStyle={{ color: theme.colors.error }}
-          />
-        </Menu>
+        </View>
       ),
     });
-  }, [navigation, menuVisible, listName]);
+  }, [navigation, listName, listId]);
 
   const handleRefresh = () => loadProducts(true);
 
@@ -149,6 +120,35 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
     } finally {
       setIsClaiming(false);
     }
+  };
+
+  const handleShareList = async () => {
+    const shareCode = listData?.share_code || listData?.access_code;
+    const shareUrl = `https://hint.com/list/${shareCode}`;
+
+    try {
+      await Share.share({
+        message: `Check out my wishlist "${listName}" on Hint!\n${shareUrl}`,
+        url: shareUrl,
+      });
+    } catch (error) {
+      // User cancelled
+    }
+  };
+
+  const handleCopyShareCode = () => {
+    const shareCode = listData?.share_code || listData?.access_code;
+    if (shareCode) {
+      Clipboard.setString(shareCode);
+      Alert.alert('Copied!', 'Share code copied to clipboard');
+    }
+  };
+
+  const handleCopyShareLink = () => {
+    const shareCode = listData?.share_code || listData?.access_code;
+    const shareUrl = `https://hint.com/list/${shareCode}`;
+    Clipboard.setString(shareUrl);
+    Alert.alert('Copied!', 'Share link copied to clipboard');
   };
 
   const renderProduct = ({ item }: { item: Product }) => (
@@ -242,7 +242,6 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
                     onPress={handleClaimProduct}
                     loading={isClaiming}
                     disabled={isClaiming}
-                    style={styles.modalButton}
                   >
                     Mark as Claimed
                   </Button>
@@ -253,22 +252,104 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
                     mode={selectedProduct.claimed_by || selectedProduct.guest_claimer_name ? "contained" : "outlined"}
                     icon="open-in-new"
                     onPress={handleOpenUrl}
-                    style={styles.modalButton}
                   >
                     Open in Browser
                   </Button>
                 )}
-                <Button
-                  mode="text"
-                  icon="close"
-                  onPress={() => setProductModalVisible(false)}
-                  style={styles.modalButton}
-                >
-                  Close
-                </Button>
               </View>
+
+              <Divider style={styles.modalDivider} />
+
+              <Button
+                mode="text"
+                onPress={() => setProductModalVisible(false)}
+                style={styles.closeButton}
+              >
+                Close
+              </Button>
             </View>
           )}
+        </Modal>
+      </Portal>
+
+      {/* Share List Modal */}
+      <Portal>
+        <Modal
+          visible={shareModalVisible}
+          onDismiss={() => setShareModalVisible(false)}
+          contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
+        >
+          <Text variant="titleLarge" style={styles.modalTitle}>
+            Share List
+          </Text>
+
+          {listData?.share_code || listData?.access_code ? (
+            <View>
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16 }}>
+                Share this code with friends so they can view your wishlist
+              </Text>
+
+              <Surface style={[styles.shareCodeBox, { backgroundColor: theme.colors.primaryContainer }]} elevation={0}>
+                <Text variant="headlineMedium" style={[styles.shareCodeText, { color: theme.colors.onPrimaryContainer }]}>
+                  {listData?.share_code || listData?.access_code}
+                </Text>
+              </Surface>
+
+              <View style={styles.shareActions}>
+                <Button
+                  mode="contained"
+                  icon="share"
+                  onPress={handleShareList}
+                  style={styles.shareButton}
+                >
+                  Share Link
+                </Button>
+
+                <View style={styles.shareRow}>
+                  <Button
+                    mode="outlined"
+                    icon="content-copy"
+                    onPress={handleCopyShareCode}
+                    style={styles.shareHalfButton}
+                  >
+                    Copy Code
+                  </Button>
+                  <Button
+                    mode="outlined"
+                    icon="link"
+                    onPress={handleCopyShareLink}
+                    style={styles.shareHalfButton}
+                  >
+                    Copy Link
+                  </Button>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View>
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16 }}>
+                This list is private. Make it public to share with others.
+              </Text>
+              <Button
+                mode="contained"
+                onPress={() => {
+                  setShareModalVisible(false);
+                  navigation.navigate('EditList', { listId });
+                }}
+              >
+                Edit List Settings
+              </Button>
+            </View>
+          )}
+
+          <Divider style={styles.modalDivider} />
+
+          <Button
+            mode="text"
+            onPress={() => setShareModalVisible(false)}
+          >
+            Close
+          </Button>
         </Modal>
       </Portal>
     </View>
@@ -282,8 +363,8 @@ const styles = StyleSheet.create({
   listContent: {
     padding: 16,
   },
-  headerMenuButton: {
-    marginRight: 4,
+  headerButtons: {
+    flexDirection: 'row',
   },
   modalContainer: {
     margin: 20,
@@ -312,7 +393,33 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 8,
   },
-  modalButton: {
-    marginTop: 4,
+  modalDivider: {
+    marginVertical: 16,
+  },
+  closeButton: {
+    marginTop: 0,
+  },
+  shareCodeBox: {
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  shareCodeText: {
+    fontWeight: '700',
+    letterSpacing: 4,
+  },
+  shareActions: {
+    gap: 12,
+  },
+  shareButton: {
+    marginBottom: 4,
+  },
+  shareRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  shareHalfButton: {
+    flex: 1,
   },
 });
