@@ -2,13 +2,13 @@
 
 Quick reference for picking up where you left off.
 
-**Last Updated:** January 13, 2026 (Evening)
+**Last Updated:** January 13, 2026 (Night)
 
 ---
 
 ## Current Status: 99% MVP Complete
 
-**Phase:** Mobile App Feature Complete - TestFlight Build 8 Live
+**Phase:** Mobile App Feature Complete - TestFlight Build 9 Live
 
 ---
 
@@ -26,9 +26,17 @@ Quick reference for picking up where you left off.
 
 ---
 
-## Mobile App Status (TestFlight Build 8)
+## Mobile App Status (TestFlight Build 9)
 
-**Build 8 (Latest):**
+**Build 9 (Latest):**
+- Improved modal and card UI styling
+- Better header icon centering (marginRight offset)
+- ProductCard with 72x72 images and chips row layout
+- Cleaner modal spacing and button alignment
+- Added try-catch for URL parsing safety
+- Fixed guest claimer detection in ProductCard
+
+**Build 8:**
 - Fixed Friends tab crash (error handling + data validation)
 - Fixed Share modal layout (title inside box, no inner divider)
 - Removed Share Code from Edit List (now only in Share modal)
@@ -112,7 +120,7 @@ cd hint-mobile-test && npx expo start
 
 **Build & deploy to TestFlight:**
 ```
-cd hint-mobile-test && eas build --platform ios --profile production --non-interactive && eas submit --platform ios --non-interactive
+cd hint-mobile-test && eas build --platform ios --profile production --non-interactive && eas submit --platform ios --latest --non-interactive
 ```
 
 ---
@@ -155,6 +163,7 @@ Initialized Jan 13, 2026. Key commits:
 - `a094bd1` - Fix UI polish and Friends tab crash (Build 6)
 - `e865961` - Add deep linking support (Build 7)
 - `7fb6cea` - Fix Friends crash, Share modal, remove share from Edit (Build 8)
+- `527916b` - Improve modal and card UI styling (Build 9)
 
 ---
 
