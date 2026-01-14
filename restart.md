@@ -8,7 +8,7 @@ Quick reference for picking up where you left off.
 
 ## Current Status: 99% MVP Complete
 
-**Phase:** Mobile App Feature Complete - TestFlight Build 7 Live
+**Phase:** Mobile App Feature Complete - TestFlight Build 8 Live
 
 ---
 
@@ -26,9 +26,15 @@ Quick reference for picking up where you left off.
 
 ---
 
-## Mobile App Status (TestFlight Build 7)
+## Mobile App Status (TestFlight Build 8)
 
-**Build 7 (Latest):**
+**Build 8 (Latest):**
+- Fixed Friends tab crash (error handling + data validation)
+- Fixed Share modal layout (title inside box, no inner divider)
+- Removed Share Code from Edit List (now only in Share modal)
+- Fixed header icon sizing
+
+**Build 7:**
 - Deep linking support for hint:// scheme
 - Web link support for https://hint.com/list/{id}
 - Supported routes: list/{id}, lists, friends, leaderboard, settings, activity
@@ -148,6 +154,7 @@ Initialized Jan 13, 2026. Key commits:
 - `5aafb14` - Fix UI issues and add Share List modal (Build 5)
 - `a094bd1` - Fix UI polish and Friends tab crash (Build 6)
 - `e865961` - Add deep linking support (Build 7)
+- `7fb6cea` - Fix Friends crash, Share modal, remove share from Edit (Build 8)
 
 ---
 
