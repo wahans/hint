@@ -1,10 +1,11 @@
 /**
  * Hint Mobile - List Detail Screen
+ * FIXED: Better modal spacing, button alignment, removed extra whitespace
  */
 
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Linking, Alert, Image, Share, Clipboard } from 'react-native';
-import { Text, IconButton, Portal, Modal, Button, Surface, Divider } from 'react-native-paper';
+import { Text, IconButton, Portal, Modal, Button, Surface } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import type { ListsScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
@@ -68,12 +69,12 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
         <View style={styles.headerButtons}>
           <IconButton
             icon="share-variant"
-            size={24}
+            size={22}
             onPress={() => setShareModalVisible(true)}
           />
           <IconButton
             icon="pencil"
-            size={24}
+            size={22}
             onPress={() => navigation.navigate('EditList', { listId })}
           />
         </View>
@@ -115,7 +116,7 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
             text: 'OK',
             onPress: () => {
               setProductModalVisible(false);
-              loadProducts(true); // Refresh to show claim status
+              loadProducts(true);
             },
           },
         ]);
@@ -163,6 +164,9 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
     />
   );
 
+  // Check if product is claimed
+  const isProductClaimed = selectedProduct?.claimed_by || selectedProduct?.guest_claimer_name;
+
   if (isLoading && !isRefreshing) {
     return (
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -203,34 +207,43 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
           contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
         >
           {selectedProduct && (
-            <View>
+            <View style={styles.modalContent}>
               {/* Product Image */}
               {selectedProduct.image_url && (
-                <Image
-                  source={{ uri: selectedProduct.image_url }}
-                  style={styles.modalImage}
-                  resizeMode="contain"
-                />
+                <View style={styles.modalImageContainer}>
+                  <Image
+                    source={{ uri: selectedProduct.image_url }}
+                    style={styles.modalImage}
+                    resizeMode="contain"
+                  />
+                </View>
               )}
 
-              <Text variant="titleLarge" style={styles.modalTitle}>
+              {/* Product Info */}
+              <Text variant="titleLarge" style={styles.modalTitle} numberOfLines={3}>
                 {selectedProduct.name}
               </Text>
 
-              {selectedProduct.current_price && (
-                <Text variant="headlineMedium" style={{ color: theme.colors.primary, marginBottom: 8 }}>
+              {selectedProduct.current_price != null && (
+                <Text variant="headlineMedium" style={[styles.modalPrice, { color: theme.colors.primary }]}>
                   ${selectedProduct.current_price.toFixed(2)}
                 </Text>
               )}
 
               {selectedProduct.url && (
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}>
-                  {new URL(selectedProduct.url).hostname.replace('www.', '')}
+                <Text variant="bodySmall" style={[styles.modalHostname, { color: theme.colors.onSurfaceVariant }]}>
+                  {(() => {
+                    try {
+                      return new URL(selectedProduct.url).hostname.replace('www.', '');
+                    } catch {
+                      return '';
+                    }
+                  })()}
                 </Text>
               )}
 
-              {/* Claim Status */}
-              {(selectedProduct.claimed_by || selectedProduct.guest_claimer_name) && (
+              {/* Claim Status Badge */}
+              {isProductClaimed && (
                 <View style={[styles.claimedBadge, { backgroundColor: theme.colors.primaryContainer }]}>
                   <Text variant="labelMedium" style={{ color: theme.colors.onPrimaryContainer }}>
                     ✓ Claimed{selectedProduct.guest_claimer_name ? ` by ${selectedProduct.guest_claimer_name}` : ''}
@@ -238,15 +251,18 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
                 </View>
               )}
 
+              {/* Action Buttons */}
               <View style={styles.modalActions}>
                 {/* Claim Button - only show if not already claimed and user is logged in */}
-                {!selectedProduct.claimed_by && !selectedProduct.guest_claimer_name && user && (
+                {!isProductClaimed && user && (
                   <Button
                     mode="contained"
                     icon="gift"
                     onPress={handleClaimProduct}
                     loading={isClaiming}
                     disabled={isClaiming}
+                    style={styles.actionButton}
+                    contentStyle={styles.actionButtonContent}
                   >
                     Mark as Claimed
                   </Button>
@@ -254,22 +270,24 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
 
                 {selectedProduct.url && (
                   <Button
-                    mode={selectedProduct.claimed_by || selectedProduct.guest_claimer_name ? "contained" : "outlined"}
+                    mode={isProductClaimed ? 'contained' : 'outlined'}
                     icon="open-in-new"
                     onPress={handleOpenUrl}
+                    style={styles.actionButton}
+                    contentStyle={styles.actionButtonContent}
                   >
                     Open in Browser
                   </Button>
                 )}
-              </View>
 
-              <Button
-                mode="text"
-                onPress={() => setProductModalVisible(false)}
-                style={styles.closeButton}
-              >
-                Close
-              </Button>
+                <Button
+                  mode="text"
+                  onPress={() => setProductModalVisible(false)}
+                  style={styles.closeButton}
+                >
+                  Close
+                </Button>
+              </View>
             </View>
           )}
         </Modal>
@@ -288,8 +306,8 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
             </Text>
 
             {listData?.share_code || listData?.access_code ? (
-              <View>
-                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16 }}>
+              <>
+                <Text variant="bodyMedium" style={[styles.shareDescription, { color: theme.colors.onSurfaceVariant }]}>
                   Share this code with friends so they can view your wishlist
                 </Text>
 
@@ -304,7 +322,8 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
                     mode="contained"
                     icon="share"
                     onPress={handleShareList}
-                    style={styles.shareButton}
+                    style={styles.shareMainButton}
+                    contentStyle={styles.actionButtonContent}
                   >
                     Share Link
                   </Button>
@@ -315,6 +334,8 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
                       icon="content-copy"
                       onPress={handleCopyShareCode}
                       style={styles.shareHalfButton}
+                      contentStyle={styles.halfButtonContent}
+                      labelStyle={styles.halfButtonLabel}
                     >
                       Copy Code
                     </Button>
@@ -323,15 +344,17 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
                       icon="link"
                       onPress={handleCopyShareLink}
                       style={styles.shareHalfButton}
+                      contentStyle={styles.halfButtonContent}
+                      labelStyle={styles.halfButtonLabel}
                     >
                       Copy Link
                     </Button>
                   </View>
                 </View>
-              </View>
+              </>
             ) : (
-              <View>
-                <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16 }}>
+              <>
+                <Text variant="bodyMedium" style={[styles.shareDescription, { color: theme.colors.onSurfaceVariant }]}>
                   This list is private. Make it public to share with others.
                 </Text>
                 <Button
@@ -340,10 +363,12 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
                     setShareModalVisible(false);
                     navigation.navigate('EditList', { listId });
                   }}
+                  style={styles.shareMainButton}
+                  contentStyle={styles.actionButtonContent}
                 >
                   Edit List Settings
                 </Button>
-              </View>
+              </>
             )}
 
             <Button
@@ -370,21 +395,39 @@ const styles = StyleSheet.create({
   headerButtons: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginRight: -8,
   },
+
+  // Product Modal Styles
   modalContainer: {
-    margin: 20,
+    marginHorizontal: 24,
+    borderRadius: 16,
+    maxHeight: '85%',
+  },
+  modalContent: {
     padding: 20,
+  },
+  modalImageContainer: {
+    width: '100%',
+    height: 180,
+    backgroundColor: '#f8f8f8',
     borderRadius: 12,
-    maxHeight: '80%',
+    marginBottom: 16,
+    overflow: 'hidden',
   },
   modalImage: {
     width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 16,
-    backgroundColor: '#f5f5f5',
+    height: '100%',
   },
   modalTitle: {
+    marginBottom: 8,
+    lineHeight: 28,
+  },
+  modalPrice: {
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  modalHostname: {
     marginBottom: 12,
   },
   claimedBadge: {
@@ -395,50 +438,68 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   modalActions: {
-    gap: 12,
     marginTop: 8,
   },
-  modalDivider: {
-    marginVertical: 16,
+  actionButton: {
+    marginBottom: 10,
+    borderRadius: 8,
+  },
+  actionButtonContent: {
+    paddingVertical: 6,
   },
   closeButton: {
-    marginTop: 24,
+    marginTop: 4,
   },
+
+  // Share Modal Styles
   shareModalContainer: {
-    margin: 20,
-    borderRadius: 12,
-    overflow: 'hidden',
+    marginHorizontal: 24,
+    borderRadius: 16,
   },
   shareModalContent: {
     padding: 24,
   },
   shareModalTitle: {
-    marginBottom: 16,
+    marginBottom: 12,
+    fontWeight: '600',
+  },
+  shareDescription: {
+    marginBottom: 20,
+    lineHeight: 20,
   },
   shareCodeBox: {
-    padding: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     borderRadius: 12,
     alignItems: 'center',
     marginBottom: 20,
   },
   shareCodeText: {
     fontWeight: '700',
-    letterSpacing: 4,
+    letterSpacing: 3,
   },
   shareActions: {
-    gap: 12,
+    gap: 10,
   },
-  shareButton: {
-    marginBottom: 4,
+  shareMainButton: {
+    borderRadius: 8,
+    marginBottom: 6,
   },
   shareRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 10,
   },
   shareHalfButton: {
     flex: 1,
+    borderRadius: 8,
+  },
+  halfButtonContent: {
+    paddingVertical: 2,
+  },
+  halfButtonLabel: {
+    fontSize: 13,
   },
   shareCloseButton: {
-    marginTop: 20,
+    marginTop: 12,
   },
 });
