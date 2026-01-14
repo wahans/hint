@@ -20,11 +20,13 @@ import { useTheme } from '../context/ThemeContext';
 import MyListsScreen from '../screens/lists/MyListsScreen';
 import ListDetailScreen from '../screens/lists/ListDetailScreen';
 import CreateListScreen from '../screens/lists/CreateListScreen';
+import EditListScreen from '../screens/lists/EditListScreen';
 import FriendsListsScreen from '../screens/friends/FriendsListsScreen';
 import FriendListDetailScreen from '../screens/friends/FriendListDetailScreen';
 import LeaderboardScreen from '../screens/leaderboard/LeaderboardScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import NotificationsScreen from '../screens/settings/NotificationsScreen';
+import NotificationCenterScreen from '../screens/settings/NotificationCenterScreen';
 import AccountScreen from '../screens/settings/AccountScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -55,6 +57,11 @@ function ListsStackNavigator() {
         name="CreateList"
         component={CreateListScreen}
         options={{ title: 'New List', presentation: 'modal' }}
+      />
+      <ListsStack.Screen
+        name="EditList"
+        component={EditListScreen}
+        options={{ title: 'Edit List', presentation: 'modal' }}
       />
     </ListsStack.Navigator>
   );
@@ -130,7 +137,12 @@ function SettingsStackNavigator() {
       <SettingsStack.Screen
         name="Notifications"
         component={NotificationsScreen}
-        options={{ title: 'Notifications' }}
+        options={{ title: 'Notification Settings' }}
+      />
+      <SettingsStack.Screen
+        name="NotificationCenter"
+        component={NotificationCenterScreen}
+        options={{ title: 'Activity' }}
       />
       <SettingsStack.Screen
         name="Account"

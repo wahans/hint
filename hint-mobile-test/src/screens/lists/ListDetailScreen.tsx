@@ -3,12 +3,13 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Linking, Alert } from 'react-native';
-import { Text, IconButton, Menu, Divider, Portal, Modal, Button } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl, Linking, Alert, Image } from 'react-native';
+import { Text, IconButton, Menu, Divider, Portal, Modal, Button, ActivityIndicator } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import type { ListsScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
-import { productService } from '../../../shared/services';
+import { useAuth } from '../../context/AuthContext';
+import { productService, claimService } from '../../../shared/services';
 import type { Product } from '../../../shared/types';
 import ProductCard from '../../components/ProductCard';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
@@ -17,6 +18,7 @@ import EmptyState from '../../components/EmptyState';
 export default function ListDetailScreen({ route, navigation }: ListsScreenProps<'ListDetail'>) {
   const { listId, listName } = route.params;
   const { theme } = useTheme();
+  const { user } = useAuth();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,6 +26,7 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productModalVisible, setProductModalVisible] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const loadProducts = async (showRefresh = false) => {
     if (showRefresh) setIsRefreshing(true);
@@ -68,7 +71,7 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
             leadingIcon="pencil"
             onPress={() => {
               setMenuVisible(false);
-              Alert.alert('Edit List', 'Edit list functionality coming soon');
+              navigation.navigate('EditList', { listId });
             }}
             title="Edit List"
           />
@@ -113,6 +116,38 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
     if (selectedProduct?.url) {
       await Linking.openURL(selectedProduct.url);
       setProductModalVisible(false);
+    }
+  };
+
+  const handleClaimProduct = async () => {
+    if (!selectedProduct) return;
+
+    // Check if already claimed
+    if (selectedProduct.claimed_by || selectedProduct.guest_claimer_name) {
+      Alert.alert('Already Claimed', 'This item has already been claimed by someone.');
+      return;
+    }
+
+    setIsClaiming(true);
+    try {
+      const result = await claimService.claimProduct(selectedProduct.id);
+      if (result.error) {
+        Alert.alert('Error', result.error.message);
+      } else {
+        Alert.alert('Success', 'You have claimed this item!', [
+          {
+            text: 'OK',
+            onPress: () => {
+              setProductModalVisible(false);
+              loadProducts(true); // Refresh to show claim status
+            },
+          },
+        ]);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to claim item. Please try again.');
+    } finally {
+      setIsClaiming(false);
     }
   };
 
@@ -164,6 +199,15 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
         >
           {selectedProduct && (
             <View>
+              {/* Product Image */}
+              {selectedProduct.image_url && (
+                <Image
+                  source={{ uri: selectedProduct.image_url }}
+                  style={styles.modalImage}
+                  resizeMode="contain"
+                />
+              )}
+
               <Text variant="titleLarge" style={styles.modalTitle}>
                 {selectedProduct.name}
               </Text>
@@ -175,15 +219,38 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
               )}
 
               {selectedProduct.url && (
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 16 }}>
+                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 8 }}>
                   {new URL(selectedProduct.url).hostname.replace('www.', '')}
                 </Text>
               )}
 
+              {/* Claim Status */}
+              {(selectedProduct.claimed_by || selectedProduct.guest_claimer_name) && (
+                <View style={[styles.claimedBadge, { backgroundColor: theme.colors.primaryContainer }]}>
+                  <Text variant="labelMedium" style={{ color: theme.colors.onPrimaryContainer }}>
+                    ✓ Claimed{selectedProduct.guest_claimer_name ? ` by ${selectedProduct.guest_claimer_name}` : ''}
+                  </Text>
+                </View>
+              )}
+
               <View style={styles.modalActions}>
-                {selectedProduct.url && (
+                {/* Claim Button - only show if not already claimed and user is logged in */}
+                {!selectedProduct.claimed_by && !selectedProduct.guest_claimer_name && user && (
                   <Button
                     mode="contained"
+                    icon="gift"
+                    onPress={handleClaimProduct}
+                    loading={isClaiming}
+                    disabled={isClaiming}
+                    style={styles.modalButton}
+                  >
+                    Mark as Claimed
+                  </Button>
+                )}
+
+                {selectedProduct.url && (
+                  <Button
+                    mode={selectedProduct.claimed_by || selectedProduct.guest_claimer_name ? "contained" : "outlined"}
                     icon="open-in-new"
                     onPress={handleOpenUrl}
                     style={styles.modalButton}
@@ -192,7 +259,7 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
                   </Button>
                 )}
                 <Button
-                  mode="outlined"
+                  mode="text"
                   icon="close"
                   onPress={() => setProductModalVisible(false)}
                   style={styles.modalButton}
@@ -222,12 +289,28 @@ const styles = StyleSheet.create({
     margin: 20,
     padding: 20,
     borderRadius: 12,
+    maxHeight: '80%',
+  },
+  modalImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 16,
+    backgroundColor: '#f5f5f5',
   },
   modalTitle: {
     marginBottom: 12,
   },
+  claimedBadge: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
   modalActions: {
     gap: 12,
+    marginTop: 8,
   },
   modalButton: {
     marginTop: 4,

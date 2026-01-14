@@ -6,9 +6,9 @@ Quick reference for picking up where you left off.
 
 ---
 
-## Current Status: 98% MVP Complete
+## Current Status: 99% MVP Complete
 
-**Phase:** Mobile App Polish & TestFlight Testing
+**Phase:** Mobile App Feature Complete - Ready for TestFlight Build 4
 
 ---
 
@@ -26,16 +26,23 @@ Quick reference for picking up where you left off.
 
 ---
 
-## Mobile App Status (TestFlight Build 3)
+## Mobile App Status (Ready for TestFlight Build 4)
 
 **Completed Today (Jan 13, 2026):**
 - Added hint logo to login screen
 - Leaderboard now shows This Week / This Month / All Time
-- Product detail modal with "Open in Browser" action
+- Product detail modal with image, price, and "Mark as Claimed" button
 - Fixed three-dot menu positioning and added confirmation dialogs
 - Friends API connected (friends.service.ts)
 - Leaderboard API connected (leaderboard.service.ts)
 - App Store Connect ID configured in eas.json for easy deploys
+- **NEW: Edit List screen** - Full settings (name, due date, privacy, notifications, share code)
+- **NEW: Add Friend by Email** - Search users and send friend requests
+- **NEW: Invite Friend** - Share invite link to non-users
+- **NEW: Friend Requests** - View and accept/reject pending requests with FAB menu
+- **NEW: Due Date on Create List** - Set key dates when creating lists
+- **NEW: Notification Center** - In-app activity feed for viewing notifications
+- **NEW: Due Date Reminders** - Settings for 60/30/15 day reminders
 
 **Deploy to TestFlight:**
 ```bash
@@ -48,10 +55,10 @@ eas submit --platform ios --non-interactive
 
 ## Next Up (Planned Features)
 
-1. **Settings Enhancement** - Password change, more notification options
-2. **List Actions** - Edit list, share list, delete list (currently show alerts)
-3. **Push Notifications** - OneSignal integration for price drops, claims
-4. **Mobile Polish** - Barcode scanning, deep linking, share extension
+1. **Push Notifications** - OneSignal integration for real push delivery
+2. **Account Settings** - Password change, delete account
+3. **Mobile Polish** - Barcode scanning, deep linking, share extension
+4. **Production Launch** - Move from TestFlight to App Store
 
 ---
 

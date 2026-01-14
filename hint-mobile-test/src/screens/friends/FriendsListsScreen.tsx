@@ -3,33 +3,65 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, SectionList } from 'react-native';
-import { Text, Card, Avatar, Chip } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl, Share, Alert, Keyboard } from 'react-native';
+import {
+  Text,
+  Card,
+  Avatar,
+  Chip,
+  FAB,
+  Portal,
+  Modal,
+  TextInput,
+  Button,
+  IconButton,
+  Divider,
+  Surface,
+  Badge,
+} from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import type { FriendsScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { friendsService, type FriendWithLists } from '../../../shared/services';
-import type { List } from '../../../shared/types';
+import type { FriendRequest } from '../../../shared/types';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import EmptyState from '../../components/EmptyState';
 
 export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'FriendsLists'>) {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [friendsData, setFriendsData] = useState<FriendWithLists[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Modal states
+  const [fabOpen, setFabOpen] = useState(false);
+  const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
+  const [friendEmail, setFriendEmail] = useState('');
+  const [isSendingRequest, setIsSendingRequest] = useState(false);
+  const [requestError, setRequestError] = useState('');
 
   const loadFriendsLists = async (showRefresh = false) => {
     if (showRefresh) setIsRefreshing(true);
     else setIsLoading(true);
 
     try {
-      const result = await friendsService.getFriendsWithLists();
-      if (result.data) {
-        setFriendsData(result.data);
+      const [friendsResult, requestsResult] = await Promise.all([
+        friendsService.getFriendsWithLists(),
+        friendsService.getPendingRequests(),
+      ]);
+
+      if (friendsResult.data) {
+        setFriendsData(friendsResult.data);
       } else {
-        console.error('Failed to load friends lists:', result.error?.message);
+        console.error('Failed to load friends lists:', friendsResult.error?.message);
         setFriendsData([]);
+      }
+
+      if (requestsResult.data) {
+        setPendingRequests(requestsResult.data);
       }
     } catch (error) {
       console.error('Failed to load friends lists:', error);
@@ -47,6 +79,131 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
   );
 
   const handleRefresh = () => loadFriendsLists(true);
+
+  const handleAddFriend = async () => {
+    const email = friendEmail.trim().toLowerCase();
+    if (!email) {
+      setRequestError('Please enter an email address');
+      return;
+    }
+
+    // Basic email validation
+    if (!email.includes('@') || !email.includes('.')) {
+      setRequestError('Please enter a valid email address');
+      return;
+    }
+
+    setRequestError('');
+    setIsSendingRequest(true);
+    Keyboard.dismiss();
+
+    try {
+      const result = await friendsService.sendFriendRequest(email);
+      if (result.error) {
+        setRequestError(result.error.message);
+      } else {
+        setAddFriendModalVisible(false);
+        setFriendEmail('');
+        Alert.alert('Request Sent', `Friend request sent to ${email}!`);
+      }
+    } catch (error) {
+      setRequestError('Failed to send friend request. Please try again.');
+    } finally {
+      setIsSendingRequest(false);
+    }
+  };
+
+  const handleInviteFriend = async () => {
+    const userName = user?.name || user?.user_metadata?.name || 'A friend';
+    const inviteMessage = `${userName} is inviting you to join Hint - the smarter way to share your wishlist!\n\nDownload the app: https://hint.com/download`;
+
+    try {
+      await Share.share({
+        message: inviteMessage,
+      });
+    } catch (error) {
+      // User cancelled
+    }
+    setFabOpen(false);
+  };
+
+  const handleAcceptRequest = async (requestId: string, fromName: string) => {
+    try {
+      const result = await friendsService.acceptFriendRequest(requestId);
+      if (result.error) {
+        Alert.alert('Error', result.error.message);
+      } else {
+        Alert.alert('Friend Added', `You are now friends with ${fromName}!`);
+        loadFriendsLists(true);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to accept friend request');
+    }
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    try {
+      const result = await friendsService.rejectFriendRequest(requestId);
+      if (result.error) {
+        Alert.alert('Error', result.error.message);
+      } else {
+        loadFriendsLists(true);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to reject friend request');
+    }
+  };
+
+  const renderPendingRequests = () => {
+    if (pendingRequests.length === 0) return null;
+
+    return (
+      <View style={styles.pendingSection}>
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          Friend Requests ({pendingRequests.length})
+        </Text>
+        {pendingRequests.map((request) => (
+          <Card key={request.id} style={styles.requestCard}>
+            <Card.Content style={styles.requestContent}>
+              <View style={styles.requestInfo}>
+                <Avatar.Text
+                  size={40}
+                  label={request.from_user_name.charAt(0).toUpperCase()}
+                  style={{ backgroundColor: theme.colors.secondaryContainer }}
+                  labelStyle={{ color: theme.colors.onSecondaryContainer }}
+                />
+                <View style={styles.requestText}>
+                  <Text variant="titleSmall">{request.from_user_name}</Text>
+                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                    {request.from_user_email}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.requestActions}>
+                <IconButton
+                  icon="check"
+                  mode="contained"
+                  containerColor={theme.colors.primaryContainer}
+                  iconColor={theme.colors.primary}
+                  size={20}
+                  onPress={() => handleAcceptRequest(request.id, request.from_user_name)}
+                />
+                <IconButton
+                  icon="close"
+                  mode="contained"
+                  containerColor={theme.colors.errorContainer}
+                  iconColor={theme.colors.error}
+                  size={20}
+                  onPress={() => handleRejectRequest(request.id)}
+                />
+              </View>
+            </Card.Content>
+          </Card>
+        ))}
+        <Divider style={styles.divider} />
+      </View>
+    );
+  };
 
   const renderFriend = ({ item }: { item: FriendWithLists }) => (
     <View style={styles.friendSection}>
@@ -96,13 +253,17 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
     );
   }
 
+  const hasContent = friendsData.length > 0 || pendingRequests.length > 0;
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {friendsData.length === 0 ? (
+      {!hasContent ? (
         <EmptyState
           icon="account-group"
-          title="No friends' lists yet"
-          description="When friends share their wishlists with you, they'll appear here"
+          title="No friends yet"
+          description="Add friends to see their wishlists and share yours with them"
+          actionLabel="Add a Friend"
+          onAction={() => setAddFriendModalVisible(true)}
         />
       ) : (
         <FlatList
@@ -110,6 +271,7 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
           renderItem={renderFriend}
           keyExtractor={(item) => item.friendId}
           contentContainerStyle={styles.listContent}
+          ListHeaderComponent={renderPendingRequests}
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
@@ -117,8 +279,113 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
               tintColor={theme.colors.primary}
             />
           }
+          ListEmptyComponent={
+            pendingRequests.length === 0 ? null : (
+              <Text
+                variant="bodyMedium"
+                style={[styles.noListsText, { color: theme.colors.onSurfaceVariant }]}
+              >
+                No friends' lists to show yet
+              </Text>
+            )
+          }
         />
       )}
+
+      {/* FAB Group for Add Friend / Invite */}
+      <FAB.Group
+        open={fabOpen}
+        visible={true}
+        icon={fabOpen ? 'close' : 'account-plus'}
+        actions={[
+          {
+            icon: 'email-plus',
+            label: 'Add by Email',
+            onPress: () => {
+              setFabOpen(false);
+              setAddFriendModalVisible(true);
+            },
+          },
+          {
+            icon: 'share-variant',
+            label: 'Invite Friend',
+            onPress: handleInviteFriend,
+          },
+        ]}
+        onStateChange={({ open }) => setFabOpen(open)}
+        fabStyle={{ backgroundColor: theme.colors.primary }}
+        color={theme.colors.onPrimary}
+      />
+
+      {/* Pending requests badge */}
+      {pendingRequests.length > 0 && !fabOpen && (
+        <Badge style={styles.badge} size={20}>
+          {pendingRequests.length}
+        </Badge>
+      )}
+
+      {/* Add Friend Modal */}
+      <Portal>
+        <Modal
+          visible={addFriendModalVisible}
+          onDismiss={() => {
+            setAddFriendModalVisible(false);
+            setFriendEmail('');
+            setRequestError('');
+          }}
+          contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
+        >
+          <Text variant="titleLarge" style={styles.modalTitle}>
+            Add Friend
+          </Text>
+          <Text variant="bodyMedium" style={[styles.modalDescription, { color: theme.colors.onSurfaceVariant }]}>
+            Enter your friend's email address to send them a friend request
+          </Text>
+
+          <TextInput
+            label="Friend's Email"
+            value={friendEmail}
+            onChangeText={setFriendEmail}
+            mode="outlined"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            placeholder="friend@example.com"
+            style={styles.emailInput}
+            error={!!requestError}
+          />
+
+          {requestError ? (
+            <Text variant="bodySmall" style={[styles.errorText, { color: theme.colors.error }]}>
+              {requestError}
+            </Text>
+          ) : null}
+
+          <View style={styles.modalActions}>
+            <Button
+              mode="contained"
+              onPress={handleAddFriend}
+              loading={isSendingRequest}
+              disabled={isSendingRequest}
+              style={styles.modalButton}
+            >
+              Send Request
+            </Button>
+            <Button
+              mode="outlined"
+              onPress={() => {
+                setAddFriendModalVisible(false);
+                setFriendEmail('');
+                setRequestError('');
+              }}
+              disabled={isSendingRequest}
+              style={styles.modalButton}
+            >
+              Cancel
+            </Button>
+          </View>
+        </Modal>
+      </Portal>
     </View>
   );
 }
@@ -129,6 +396,37 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+    paddingBottom: 100, // Space for FAB
+  },
+  pendingSection: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    marginBottom: 12,
+  },
+  requestCard: {
+    marginBottom: 8,
+  },
+  requestContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  requestInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  requestText: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  requestActions: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  divider: {
+    marginTop: 16,
   },
   friendSection: {
     marginBottom: 24,
@@ -147,5 +445,39 @@ const styles = StyleSheet.create({
   },
   countChip: {
     marginRight: 12,
+  },
+  noListsText: {
+    textAlign: 'center',
+    marginTop: 24,
+  },
+  badge: {
+    position: 'absolute',
+    bottom: 100,
+    right: 16,
+    backgroundColor: '#FF5722',
+  },
+  modalContainer: {
+    margin: 20,
+    padding: 24,
+    borderRadius: 12,
+  },
+  modalTitle: {
+    marginBottom: 8,
+  },
+  modalDescription: {
+    marginBottom: 20,
+  },
+  emailInput: {
+    marginBottom: 8,
+  },
+  errorText: {
+    marginBottom: 12,
+  },
+  modalActions: {
+    gap: 12,
+    marginTop: 16,
+  },
+  modalButton: {
+    paddingVertical: 4,
   },
 });

@@ -37,9 +37,16 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps<'Sett
       <List.Section>
         <List.Subheader>Notifications</List.Subheader>
         <List.Item
-          title="Push Notifications"
-          description="Price drops, claims, and more"
-          left={(props) => <List.Icon {...props} icon="bell" />}
+          title="Activity"
+          description="View recent notifications"
+          left={(props) => <List.Icon {...props} icon="bell-ring" />}
+          right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          onPress={() => navigation.navigate('NotificationCenter')}
+        />
+        <List.Item
+          title="Notification Settings"
+          description="Price drops, claims, reminders"
+          left={(props) => <List.Icon {...props} icon="bell-cog" />}
           right={(props) => <List.Icon {...props} icon="chevron-right" />}
           onPress={() => navigation.navigate('Notifications')}
         />

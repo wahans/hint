@@ -46,15 +46,16 @@ export default {
         },
       ],
     },
-    // OneSignal plugin requires native build - uncomment when building for production
-    // plugins: [
-    //   [
-    //     'onesignal-expo-plugin',
-    //     {
-    //       mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-    //     },
-    //   ],
-    // ],
+    plugins: [
+      '@react-native-community/datetimepicker',
+      // OneSignal plugin requires native build - uncomment when building for production
+      // [
+      //   'onesignal-expo-plugin',
+      //   {
+      //     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+      //   },
+      // ],
+    ],
     extra: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseAnonKey: process.env.SUPABASE_ANON_KEY,

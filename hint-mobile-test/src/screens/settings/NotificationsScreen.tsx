@@ -16,6 +16,11 @@ interface NotificationSettings {
   backInStock: boolean;
   itemsClaimed: boolean;
   friendActivity: boolean;
+  dueDateReminders: boolean;
+  reminderDays60: boolean;
+  reminderDays30: boolean;
+  reminderDays15: boolean;
+  friendRequests: boolean;
 }
 
 const DEFAULT_SETTINGS: NotificationSettings = {
@@ -25,6 +30,11 @@ const DEFAULT_SETTINGS: NotificationSettings = {
   backInStock: true,
   itemsClaimed: true,
   friendActivity: false,
+  dueDateReminders: true,
+  reminderDays60: true,
+  reminderDays30: true,
+  reminderDays15: true,
+  friendRequests: true,
 };
 
 export default function NotificationsScreen({ navigation }: SettingsScreenProps<'Notifications'>) {
@@ -159,6 +169,77 @@ export default function NotificationsScreen({ navigation }: SettingsScreenProps<
               />
             )}
           />
+
+          <List.Item
+            title="Friend Requests"
+            description="When someone sends you a friend request"
+            left={(props) => <List.Icon {...props} icon="account-plus" />}
+            right={() => (
+              <Switch
+                value={settings.friendRequests}
+                onValueChange={(value) => updateSetting('friendRequests', value)}
+                disabled={!settings.enabled}
+              />
+            )}
+          />
+        </List.Section>
+
+        <Divider />
+
+        {/* Due Date Reminders */}
+        <List.Section>
+          <List.Subheader>Due Date Reminders</List.Subheader>
+
+          <List.Item
+            title="Key Date Reminders"
+            description="Get reminded before list due dates"
+            left={(props) => <List.Icon {...props} icon="calendar-clock" />}
+            right={() => (
+              <Switch
+                value={settings.dueDateReminders}
+                onValueChange={(value) => updateSetting('dueDateReminders', value)}
+                disabled={!settings.enabled}
+              />
+            )}
+          />
+
+          {settings.dueDateReminders && settings.enabled && (
+            <View style={styles.reminderOptions}>
+              <Text variant="bodyMedium" style={styles.reminderLabel}>
+                Remind me:
+              </Text>
+
+              <View style={styles.reminderRow}>
+                <Switch
+                  value={settings.reminderDays60}
+                  onValueChange={(value) => updateSetting('reminderDays60', value)}
+                />
+                <Text variant="bodyMedium" style={styles.reminderText}>
+                  60 days before
+                </Text>
+              </View>
+
+              <View style={styles.reminderRow}>
+                <Switch
+                  value={settings.reminderDays30}
+                  onValueChange={(value) => updateSetting('reminderDays30', value)}
+                />
+                <Text variant="bodyMedium" style={styles.reminderText}>
+                  30 days before
+                </Text>
+              </View>
+
+              <View style={styles.reminderRow}>
+                <Switch
+                  value={settings.reminderDays15}
+                  onValueChange={(value) => updateSetting('reminderDays15', value)}
+                />
+                <Text variant="bodyMedium" style={styles.reminderText}>
+                  15 days before
+                </Text>
+              </View>
+            </View>
+          )}
         </List.Section>
       </ScrollView>
 
@@ -192,5 +273,22 @@ const styles = StyleSheet.create({
   saveButton: {
     padding: 16,
     paddingBottom: 32,
+  },
+  reminderOptions: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginLeft: 56,
+    marginRight: 16,
+  },
+  reminderLabel: {
+    marginBottom: 12,
+  },
+  reminderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  reminderText: {
+    marginLeft: 12,
   },
 });

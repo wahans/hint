@@ -18,6 +18,7 @@ export type ListsStackParamList = {
   MyLists: undefined;
   ListDetail: { listId: string; listName: string };
   CreateList: undefined;
+  EditList: { listId: string };
 };
 
 // Friends stack params
@@ -35,6 +36,7 @@ export type LeaderboardStackParamList = {
 export type SettingsStackParamList = {
   Settings: undefined;
   Notifications: undefined;
+  NotificationCenter: undefined;
   Account: undefined;
 };
 
