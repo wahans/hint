@@ -16,7 +16,7 @@ export type AuthStackParamList = {
 // Lists stack params
 export type ListsStackParamList = {
   MyLists: undefined;
-  ListDetail: { listId: string; listName: string };
+  ListDetail: { listId: string; listName?: string };
   CreateList: undefined;
   EditList: { listId: string };
 };
@@ -24,7 +24,7 @@ export type ListsStackParamList = {
 // Friends stack params
 export type FriendsStackParamList = {
   FriendsLists: undefined;
-  FriendListDetail: { listId: string; listName: string; ownerName: string };
+  FriendListDetail: { listId: string; listName?: string; ownerName?: string };
 };
 
 // Leaderboard stack params

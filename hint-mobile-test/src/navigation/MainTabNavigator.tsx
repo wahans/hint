@@ -51,7 +51,7 @@ function ListsStackNavigator() {
       <ListsStack.Screen
         name="ListDetail"
         component={ListDetailScreen}
-        options={({ route }) => ({ title: route.params.listName })}
+        options={({ route }) => ({ title: route.params.listName || 'List' })}
       />
       <ListsStack.Screen
         name="CreateList"
@@ -88,8 +88,8 @@ function FriendsStackNavigator() {
         name="FriendListDetail"
         component={FriendListDetailScreen}
         options={({ route }) => ({
-          title: route.params.listName,
-          headerBackTitle: route.params.ownerName,
+          title: route.params.listName || 'List',
+          headerBackTitle: route.params.ownerName || 'Back',
         })}
       />
     </FriendsStack.Navigator>

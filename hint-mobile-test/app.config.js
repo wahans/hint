@@ -39,6 +39,15 @@ export default {
       package: 'com.wahans.hint',
       intentFilters: [
         {
+          action: 'VIEW',
+          autoVerify: true,
+          data: [
+            { scheme: 'hint' },
+            { scheme: 'https', host: 'hint.com', pathPrefix: '/list' },
+          ],
+          category: ['BROWSABLE', 'DEFAULT'],
+        },
+        {
           action: 'android.intent.action.SEND',
           category: ['android.intent.category.DEFAULT'],
           data: {

@@ -21,6 +21,10 @@ export default function FriendListDetailScreen({
   const { listId, listName, ownerName } = route.params;
   const { theme } = useTheme();
 
+  // Use provided names or fallbacks for deep linking support
+  const displayName = listName || 'List';
+  const displayOwner = ownerName || 'Friend';
+
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -101,7 +105,7 @@ export default function FriendListDetailScreen({
         <EmptyState
           icon="gift-off"
           title="No items in this list"
-          description={`${ownerName} hasn't added any items yet`}
+          description={`${displayOwner} hasn't added any items yet`}
         />
       ) : (
         <FlatList

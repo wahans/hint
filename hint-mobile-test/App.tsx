@@ -5,10 +5,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { StatusBar, LogBox } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as Linking from 'expo-linking';
+import type { RootStackParamList } from './src/navigation/types';
 
 // Context providers
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
@@ -26,6 +28,60 @@ LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
 ]);
 
+// Deep linking configuration
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: [Linking.createURL('/'), 'hint://', 'https://hint.com'],
+  config: {
+    screens: {
+      Main: {
+        screens: {
+          ListsTab: {
+            screens: {
+              MyLists: 'lists',
+              ListDetail: {
+                path: 'list/:listId',
+                parse: {
+                  listId: (listId: string) => listId,
+                },
+              },
+            },
+          },
+          FriendsTab: {
+            screens: {
+              FriendsLists: 'friends',
+              FriendListDetail: {
+                path: 'friend-list/:listId',
+                parse: {
+                  listId: (listId: string) => listId,
+                },
+              },
+            },
+          },
+          LeaderboardTab: {
+            screens: {
+              Leaderboard: 'leaderboard',
+            },
+          },
+          SettingsTab: {
+            screens: {
+              Settings: 'settings',
+              Notifications: 'settings/notifications',
+              NotificationCenter: 'activity',
+              Account: 'settings/account',
+            },
+          },
+        },
+      },
+      Auth: {
+        screens: {
+          Login: 'login',
+          SignUp: 'signup',
+        },
+      },
+    },
+  },
+};
+
 /**
  * App content with theme-aware status bar
  */
@@ -35,6 +91,7 @@ function AppContent() {
   return (
     <PaperProvider theme={theme}>
       <NavigationContainer
+        linking={linking}
         theme={{
           dark: isDark,
           colors: {

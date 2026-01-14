@@ -58,9 +58,12 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
     }, [listId])
   );
 
+  // Use provided listName or fall back to loaded list data
+  const displayName = listName || listData?.name || 'List';
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      title: listName,
+      title: displayName,
       headerRight: () => (
         <View style={styles.headerButtons}>
           <IconButton
@@ -74,7 +77,7 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
         </View>
       ),
     });
-  }, [navigation, listName, listId]);
+  }, [navigation, displayName, listId]);
 
   const handleRefresh = () => loadProducts(true);
 
@@ -128,7 +131,7 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
 
     try {
       await Share.share({
-        message: `Check out my wishlist "${listName}" on Hint!\n${shareUrl}`,
+        message: `Check out my wishlist "${displayName}" on Hint!\n${shareUrl}`,
         url: shareUrl,
       });
     } catch (error) {
