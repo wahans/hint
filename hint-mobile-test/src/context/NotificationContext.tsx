@@ -8,6 +8,8 @@ import {
   initializeNotifications,
   setNotificationUserId,
   clearNotificationUserId,
+  syncPushToken,
+  deactivatePushToken,
   areNotificationsEnabled,
   requestNotificationPermission,
   updateNotificationSettings,
@@ -62,7 +64,11 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   useEffect(() => {
     if (isAuthenticated && user?.id) {
       setNotificationUserId(user.id);
+      // Sync push token with database for backend notifications
+      syncPushToken();
     } else {
+      // Deactivate token and logout
+      deactivatePushToken();
       clearNotificationUserId();
     }
   }, [isAuthenticated, user?.id]);

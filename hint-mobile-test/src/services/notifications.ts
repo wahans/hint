@@ -3,7 +3,10 @@
  * Note: OneSignal requires a native build and won't work in Expo Go
  */
 
+import { Platform } from 'react-native';
 import { getEnv } from './init';
+import { getConfig } from '../../shared/config';
+import { authService } from '../../shared/services';
 
 // OneSignal is only available in native builds
 let OneSignal: any = null;
@@ -67,6 +70,83 @@ export async function clearNotificationUserId(): Promise<void> {
     console.log('OneSignal user logged out');
   } catch (error) {
     console.error('Failed to logout OneSignal user:', error);
+  }
+}
+
+/**
+ * Make RPC call to Supabase
+ */
+async function rpc(functionName: string, params: Record<string, any>): Promise<any> {
+  const config = getConfig();
+  const token = authService.getAccessToken();
+
+  if (!config) {
+    throw new Error('Not configured');
+  }
+
+  const headers: Record<string, string> = {
+    'apikey': config.supabaseAnonKey,
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(
+    `${config.supabaseUrl}/rest/v1/rpc/${functionName}`,
+    {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(params),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`RPC call failed: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Sync push token with database for backend notifications
+ */
+export async function syncPushToken(): Promise<void> {
+  if (!OneSignal) return;
+
+  try {
+    // Get the OneSignal player ID
+    const playerId = await OneSignal.User.getOnesignalId();
+
+    if (playerId) {
+      // Store in Supabase via RPC
+      await rpc('upsert_push_token', {
+        p_player_id: playerId,
+        p_device_type: Platform.OS,
+      });
+      console.log('Push token synced:', playerId);
+    }
+  } catch (error) {
+    console.error('Failed to sync push token:', error);
+  }
+}
+
+/**
+ * Deactivate push token (on logout)
+ */
+export async function deactivatePushToken(): Promise<void> {
+  if (!OneSignal) return;
+
+  try {
+    const playerId = await OneSignal.User.getOnesignalId();
+    if (playerId) {
+      await rpc('deactivate_push_token', {
+        p_player_id: playerId,
+      });
+    }
+  } catch (error) {
+    console.error('Failed to deactivate push token:', error);
   }
 }
 

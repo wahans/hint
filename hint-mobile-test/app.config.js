@@ -24,6 +24,7 @@ export default {
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         NSPhotoLibraryUsageDescription: 'Used to save product images',
+        NSLocationWhenInUseUsageDescription: 'Location is used to show relevant local deals and offers',
         CFBundleURLTypes: [
           {
             CFBundleURLSchemes: ['hint'],
@@ -58,13 +59,12 @@ export default {
     },
     plugins: [
       '@react-native-community/datetimepicker',
-      // OneSignal plugin requires native build - uncomment when building for production
-      // [
-      //   'onesignal-expo-plugin',
-      //   {
-      //     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-      //   },
-      // ],
+      [
+        'onesignal-expo-plugin',
+        {
+          mode: 'production',
+        },
+      ],
     ],
     extra: {
       supabaseUrl: process.env.SUPABASE_URL,
