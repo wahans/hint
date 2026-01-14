@@ -2,13 +2,13 @@
 
 Quick reference for picking up where you left off.
 
-**Last Updated:** January 13, 2026
+**Last Updated:** January 13, 2026 (Evening)
 
 ---
 
 ## Current Status: 99% MVP Complete
 
-**Phase:** Mobile App Feature Complete - Ready for TestFlight Build 4
+**Phase:** Mobile App Feature Complete - TestFlight Build 6 Live
 
 ---
 
@@ -26,23 +26,31 @@ Quick reference for picking up where you left off.
 
 ---
 
-## Mobile App Status (Ready for TestFlight Build 4)
+## Mobile App Status (TestFlight Build 6)
 
-**Completed Today (Jan 13, 2026):**
-- Added hint logo to login screen
-- Leaderboard now shows This Week / This Month / All Time
+**Build 6 (Latest):**
+- Header shows only Hint logo (removed "My Lists" text)
+- Centered share/edit icons in list detail header
+- Fixed product modal spacing (removed floating line, more space before Close)
+- Fixed Friends tab crash (null checks for user data)
+- Auto-pass export compliance (ITSAppUsesNonExemptEncryption)
+
+**Build 5:**
+- Separate share and edit icons in header (replaced 3-dot menu)
+- Share List modal with share code, copy code/link buttons
+- Fixed date picker text visibility
+- Added password change to Account settings
+
+**Earlier Builds:**
+- Hint logo on login screen
+- Leaderboard with This Week / This Month / All Time
 - Product detail modal with image, price, and "Mark as Claimed" button
-- Fixed three-dot menu positioning and added confirmation dialogs
-- Friends API connected (friends.service.ts)
-- Leaderboard API connected (leaderboard.service.ts)
-- App Store Connect ID configured in eas.json for easy deploys
-- **NEW: Edit List screen** - Full settings (name, due date, privacy, notifications, share code)
-- **NEW: Add Friend by Email** - Search users and send friend requests
-- **NEW: Invite Friend** - Share invite link to non-users
-- **NEW: Friend Requests** - View and accept/reject pending requests with FAB menu
-- **NEW: Due Date on Create List** - Set key dates when creating lists
-- **NEW: Notification Center** - In-app activity feed for viewing notifications
-- **NEW: Due Date Reminders** - Settings for 60/30/15 day reminders
+- Edit List screen with full settings
+- Add Friend by Email + Invite Friend functionality
+- Friend Requests with accept/reject
+- Due Date picker on Create List
+- Notification Center for in-app activity
+- Due Date Reminder settings
 
 **Deploy to TestFlight:**
 ```bash
@@ -56,9 +64,12 @@ eas submit --platform ios --non-interactive
 ## Next Up (Planned Features)
 
 1. **Push Notifications** - OneSignal integration for real push delivery
-2. **Account Settings** - Password change, delete account
-3. **Mobile Polish** - Barcode scanning, deep linking, share extension
-4. **Production Launch** - Move from TestFlight to App Store
+2. **Deep Linking** - Wire up hint:// scheme for list/product links
+3. **Share Extension** - Receive shares from other apps
+4. **Barcode Scanning** - Nice-to-have for in-store use
+5. **Production Launch** - Move from TestFlight to App Store
+
+**Completed:** Account Settings (password change, delete account)
 
 ---
 
@@ -129,6 +140,8 @@ Initialized Jan 13, 2026. Key commits:
 - `babb092` - Mobile app UI fixes (logo, leaderboard, product modal)
 - `31cc608` - Add App Store Connect App ID
 - `6281689` - Add Edit List, Friends management, and Notification features
+- `5aafb14` - Fix UI issues and add Share List modal (Build 5)
+- `a094bd1` - Fix UI polish and Friends tab crash (Build 6)
 
 ---
 
