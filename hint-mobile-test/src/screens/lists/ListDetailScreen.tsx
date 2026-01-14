@@ -258,8 +258,6 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
                 )}
               </View>
 
-              <Divider style={styles.modalDivider} />
-
               <Button
                 mode="text"
                 onPress={() => setProductModalVisible(false)}
@@ -365,6 +363,7 @@ const styles = StyleSheet.create({
   },
   headerButtons: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   modalContainer: {
     margin: 20,
@@ -397,7 +396,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   closeButton: {
-    marginTop: 0,
+    marginTop: 24,
   },
   shareCodeBox: {
     padding: 20,

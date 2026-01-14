@@ -22,6 +22,7 @@ export default {
       supportsTablet: true,
       bundleIdentifier: 'com.wahans.hint',
       infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
         NSPhotoLibraryUsageDescription: 'Used to save product images',
         CFBundleURLTypes: [
           {

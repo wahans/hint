@@ -22,14 +22,11 @@ export default function MyListsScreen({ navigation }: ListsScreenProps<'MyLists'
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
-        <View style={styles.headerTitle}>
-          <Image
-            source={require('../../../assets/logo.png')}
-            style={styles.headerLogo}
-            resizeMode="contain"
-          />
-          <Text variant="titleLarge" style={{ fontWeight: '600' }}>My Lists</Text>
-        </View>
+        <Image
+          source={require('../../../assets/logo.png')}
+          style={styles.headerLogo}
+          resizeMode="contain"
+        />
       ),
     });
   }, [navigation]);
@@ -134,14 +131,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  headerTitle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   headerLogo: {
-    width: 32,
-    height: 32,
-    marginRight: 8,
+    width: 36,
+    height: 36,
   },
   listContent: {
     padding: 16,

@@ -118,10 +118,10 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
 
   const handleInviteFriend = async () => {
     setFabOpen(false);
-    const userName = user?.name || user?.user_metadata?.name || 'A friend';
-    const inviteMessage = `${userName} is inviting you to join Hint - the smarter way to share your wishlist!\n\nDownload the app: https://hint.com/download`;
-
     try {
+      const userName = user?.name || user?.user_metadata?.name || 'A friend';
+      const inviteMessage = `${userName} is inviting you to join Hint - the smarter way to share your wishlist!\n\nDownload the app: https://hint.com/download`;
+
       await Share.share({
         message: inviteMessage,
       });
@@ -166,88 +166,94 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
         <Text variant="titleMedium" style={styles.sectionTitle}>
           Friend Requests ({pendingRequests.length})
         </Text>
-        {pendingRequests.map((request) => (
-          <Card key={request.id} style={styles.requestCard}>
-            <Card.Content style={styles.requestContent}>
-              <View style={styles.requestInfo}>
-                <Avatar.Text
-                  size={40}
-                  label={request.from_user_name.charAt(0).toUpperCase()}
-                  style={{ backgroundColor: theme.colors.secondaryContainer }}
-                  labelStyle={{ color: theme.colors.onSecondaryContainer }}
-                />
-                <View style={styles.requestText}>
-                  <Text variant="titleSmall">{request.from_user_name}</Text>
-                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                    {request.from_user_email}
-                  </Text>
+        {pendingRequests.map((request) => {
+          const displayName = request.from_user_name || request.from_user_email?.split('@')[0] || 'User';
+          return (
+            <Card key={request.id} style={styles.requestCard}>
+              <Card.Content style={styles.requestContent}>
+                <View style={styles.requestInfo}>
+                  <Avatar.Text
+                    size={40}
+                    label={displayName.charAt(0).toUpperCase()}
+                    style={{ backgroundColor: theme.colors.secondaryContainer }}
+                    labelStyle={{ color: theme.colors.onSecondaryContainer }}
+                  />
+                  <View style={styles.requestText}>
+                    <Text variant="titleSmall">{displayName}</Text>
+                    <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                      {request.from_user_email || ''}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-              <View style={styles.requestActions}>
-                <IconButton
-                  icon="check"
-                  mode="contained"
-                  containerColor={theme.colors.primaryContainer}
-                  iconColor={theme.colors.primary}
-                  size={20}
-                  onPress={() => handleAcceptRequest(request.id, request.from_user_name)}
-                />
-                <IconButton
-                  icon="close"
-                  mode="contained"
-                  containerColor={theme.colors.errorContainer}
-                  iconColor={theme.colors.error}
-                  size={20}
-                  onPress={() => handleRejectRequest(request.id)}
-                />
-              </View>
-            </Card.Content>
-          </Card>
-        ))}
+                <View style={styles.requestActions}>
+                  <IconButton
+                    icon="check"
+                    mode="contained"
+                    containerColor={theme.colors.primaryContainer}
+                    iconColor={theme.colors.primary}
+                    size={20}
+                    onPress={() => handleAcceptRequest(request.id, displayName)}
+                  />
+                  <IconButton
+                    icon="close"
+                    mode="contained"
+                    containerColor={theme.colors.errorContainer}
+                    iconColor={theme.colors.error}
+                    size={20}
+                    onPress={() => handleRejectRequest(request.id)}
+                  />
+                </View>
+              </Card.Content>
+            </Card>
+          );
+        })}
         <Divider style={styles.divider} />
       </View>
     );
   };
 
-  const renderFriend = ({ item }: { item: FriendWithLists }) => (
-    <View style={styles.friendSection}>
-      <View style={styles.friendHeader}>
-        <Avatar.Text
-          size={40}
-          label={item.friendName.charAt(0).toUpperCase()}
-          style={{ backgroundColor: theme.colors.primaryContainer }}
-          labelStyle={{ color: theme.colors.onPrimaryContainer }}
-        />
-        <Text variant="titleMedium" style={styles.friendName}>
-          {item.friendName}
-        </Text>
-      </View>
-
-      {item.lists.map((list) => (
-        <Card
-          key={list.id}
-          style={styles.listCard}
-          onPress={() =>
-            navigation.navigate('FriendListDetail', {
-              listId: list.id,
-              listName: list.name,
-              ownerName: item.friendName,
-            })
-          }
-        >
-          <Card.Title
-            title={list.name}
-            subtitle={list.key_date ? `Due: ${list.key_date}` : 'Wishlist'}
-            right={() => (
-              <Chip compact mode="flat" style={styles.countChip}>
-                View
-              </Chip>
-            )}
+  const renderFriend = ({ item }: { item: FriendWithLists }) => {
+    const friendName = item.friendName || 'Friend';
+    return (
+      <View style={styles.friendSection}>
+        <View style={styles.friendHeader}>
+          <Avatar.Text
+            size={40}
+            label={friendName.charAt(0).toUpperCase()}
+            style={{ backgroundColor: theme.colors.primaryContainer }}
+            labelStyle={{ color: theme.colors.onPrimaryContainer }}
           />
-        </Card>
-      ))}
-    </View>
-  );
+          <Text variant="titleMedium" style={styles.friendName}>
+            {friendName}
+          </Text>
+        </View>
+
+        {(item.lists || []).map((list) => (
+          <Card
+            key={list.id}
+            style={styles.listCard}
+            onPress={() =>
+              navigation.navigate('FriendListDetail', {
+                listId: list.id,
+                listName: list.name || 'List',
+                ownerName: friendName,
+              })
+            }
+          >
+            <Card.Title
+              title={list.name || 'Untitled List'}
+              subtitle={list.key_date ? `Due: ${list.key_date}` : 'Wishlist'}
+              right={() => (
+                <Chip compact mode="flat" style={styles.countChip}>
+                  View
+                </Chip>
+              )}
+            />
+          </Card>
+        ))}
+      </View>
+    );
+  };
 
   if (isLoading && !isRefreshing) {
     return (
