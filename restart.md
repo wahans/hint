@@ -8,7 +8,7 @@ Quick reference for picking up where you left off.
 
 ## Current Status: 99% MVP Complete
 
-**Phase:** Mobile App Feature Complete - TestFlight Build 6 Live
+**Phase:** Mobile App Feature Complete - TestFlight Build 7 Live
 
 ---
 
@@ -26,9 +26,15 @@ Quick reference for picking up where you left off.
 
 ---
 
-## Mobile App Status (TestFlight Build 6)
+## Mobile App Status (TestFlight Build 7)
 
-**Build 6 (Latest):**
+**Build 7 (Latest):**
+- Deep linking support for hint:// scheme
+- Web link support for https://hint.com/list/{id}
+- Supported routes: list/{id}, lists, friends, leaderboard, settings, activity
+- Android intent filters configured
+
+**Build 6:**
 - Header shows only Hint logo (removed "My Lists" text)
 - Centered share/edit icons in list detail header
 - Fixed product modal spacing (removed floating line, more space before Close)
@@ -64,12 +70,11 @@ eas submit --platform ios --non-interactive
 ## Next Up (Planned Features)
 
 1. **Push Notifications** - OneSignal integration for real push delivery
-2. **Deep Linking** - Wire up hint:// scheme for list/product links
-3. **Share Extension** - Receive shares from other apps
-4. **Barcode Scanning** - Nice-to-have for in-store use
-5. **Production Launch** - Move from TestFlight to App Store
+2. **Share Extension** - Receive shares from other apps
+3. **Barcode Scanning** - Nice-to-have for in-store use
+4. **Production Launch** - Move from TestFlight to App Store
 
-**Completed:** Account Settings (password change, delete account)
+**Completed:** Account Settings, Deep Linking (hint:// scheme)
 
 ---
 
@@ -142,6 +147,7 @@ Initialized Jan 13, 2026. Key commits:
 - `6281689` - Add Edit List, Friends management, and Notification features
 - `5aafb14` - Fix UI issues and add Share List modal (Build 5)
 - `a094bd1` - Fix UI polish and Friends tab crash (Build 6)
+- `e865961` - Add deep linking support (Build 7)
 
 ---
 
