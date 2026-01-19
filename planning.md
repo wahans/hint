@@ -18,7 +18,7 @@
 
 - [x] **Directory structure** - Multi-app monorepo structure:
   ```
-  hint-parcel/
+  hint/
   ├── hint-extension/        # Chrome extension (Manifest V3)
   │   ├── popup.js           # Main extension UI (5,528 lines)
   │   ├── popup.html         # Extension popup
@@ -80,7 +80,7 @@ A gift-sharing platform that makes it easy to create, share, and manage "hintlis
 ## Architecture
 
 ```
-hint-parcel/
+hint/
 ├── hint-extension/           # Chrome Extension (MVP Complete)
 │   ├── popup.js              # Main UI and logic
 │   ├── background.js         # Service worker
