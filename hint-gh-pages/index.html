@@ -616,23 +616,25 @@
       showMessage('formMessage', 'Loading hintlist...', 'info');
 
       try {
-        // Try access_code first, fall back to share_code for backwards compatibility
-        let response = await fetch(
-          `${SUPABASE_URL}/rest/v1/lists?access_code=eq.${code}&is_public=eq.true&select=*`,
+        // Use the get_public_hintlist RPC function which bypasses RLS
+        const rpcResponse = await fetch(
+          `${SUPABASE_URL}/rest/v1/rpc/get_public_hintlist`,
           {
+            method: 'POST',
             headers: {
               'apikey': SUPABASE_ANON_KEY,
               'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({ p_code: code })
           }
         );
 
-        let lists = await response.json();
+        const result = await rpcResponse.json();
 
-        // If no results with access_code, try share_code (database might use either name)
-        if (response.ok && lists.length === 0) {
-          response = await fetch(
-            `${SUPABASE_URL}/rest/v1/lists?share_code=eq.${code}&is_public=eq.true&select=*`,
+        if (!rpcResponse.ok || !result || result.error) {
+          // Fall back to direct query for backwards compatibility
+          let response = await fetch(
+            `${SUPABASE_URL}/rest/v1/lists?access_code=eq.${code}&is_public=eq.true&select=*`,
             {
               headers: {
                 'apikey': SUPABASE_ANON_KEY,
@@ -640,28 +642,52 @@
               }
             }
           );
-          lists = await response.json();
-        }
 
-        if (!response.ok || lists.length === 0) {
-          showMessage('formMessage', 'Invalid access code or hintlist not found. Please check the code and try again.', 'error');
-          return;
-        }
+          let lists = await response.json();
 
-        currentList = lists[0];
-
-        // Load products for this list
-        const productsResponse = await fetch(
-          `${SUPABASE_URL}/rest/v1/products?list_id=eq.${currentList.id}&select=*`,
-          {
-            headers: {
-              'apikey': SUPABASE_ANON_KEY,
-              'Content-Type': 'application/json'
-            }
+          // If no results with access_code, try share_code
+          if (response.ok && lists.length === 0) {
+            response = await fetch(
+              `${SUPABASE_URL}/rest/v1/lists?share_code=eq.${code}&is_public=eq.true&select=*`,
+              {
+                headers: {
+                  'apikey': SUPABASE_ANON_KEY,
+                  'Content-Type': 'application/json'
+                }
+              }
+            );
+            lists = await response.json();
           }
-        );
 
-        currentProducts = await productsResponse.json();
+          if (!response.ok || lists.length === 0) {
+            showMessage('formMessage', 'Invalid access code or hintlist not found. Please check the code and try again.', 'error');
+            return;
+          }
+
+          currentList = lists[0];
+
+          // Load products for this list
+          const productsResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/products?list_id=eq.${currentList.id}&select=*`,
+            {
+              headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+
+          currentProducts = await productsResponse.json();
+        } else {
+          // RPC succeeded - parse the result
+          if (!result.success || !result.list) {
+            showMessage('formMessage', result.error || 'Invalid access code or hintlist not found. Please check the code and try again.', 'error');
+            return;
+          }
+
+          currentList = result.list;
+          currentProducts = result.products || [];
+        }
 
         // Display the hintlist
         displayHintlist();
@@ -803,29 +829,27 @@
       showMessage('claimMessage', 'Claiming item...', 'info');
 
       try {
-        // Generate unclaim token
-        const unclaimToken = generateToken();
-
-        // Update product with guest claim info
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/products?id=eq.${currentProductToClaim.id}`,
+        // Use RPC function to claim product (bypasses RLS)
+        const rpcResponse = await fetch(
+          `${SUPABASE_URL}/rest/v1/rpc/guest_claim_product`,
           {
-            method: 'PATCH',
+            method: 'POST',
             headers: {
               'apikey': SUPABASE_ANON_KEY,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=representation'
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              guest_claimer_name: name,
-              guest_claimer_email: email,
-              claimed_at: new Date().toISOString(),
-              unclaim_token: unclaimToken
+              p_product_id: currentProductToClaim.id,
+              p_claimer_name: name,
+              p_claimer_email: email
             })
           }
         );
 
-        if (response.ok) {
+        const result = await rpcResponse.json();
+        const unclaimToken = result?.unclaim_token || generateToken();
+
+        if (rpcResponse.ok && result?.success) {
           // Send notification to list owner
           await sendClaimNotification(currentProductToClaim.id, name);
 
@@ -859,9 +883,8 @@
             </div>
           `;
         } else {
-          const error = await response.json();
-          console.error('Claim error:', error);
-          showMessage('claimMessage', 'Failed to claim item. It may have already been claimed.', 'error');
+          console.error('Claim error:', result);
+          showMessage('claimMessage', result?.error || 'Failed to claim item. It may have already been claimed.', 'error');
         }
 
       } catch (error) {
