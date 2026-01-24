@@ -1064,7 +1064,7 @@ function displayMyLists() {
     });
 
     // Also allow clicking on list header to expand/collapse
-    const headerDiv = listDiv.querySelector('.list-header');
+    // (headerDiv already exists from earlier in this function)
     headerDiv.style.cursor = 'pointer';
     headerDiv.addEventListener('click', (e) => {
       if (e.target.closest('button') || e.target.closest('.actions-dropdown')) return;
@@ -4443,39 +4443,6 @@ function setupFriendSearch(friends) {
   });
 }
 
-function createFriendCard(friend) {
-  const friendDiv = document.createElement('div');
-  friendDiv.className = 'friend-item';
-  friendDiv.style.marginBottom = '8px';
-  friendDiv.dataset.friendName = friend.friend_name.toLowerCase();
-  
-  friendDiv.innerHTML = `
-    <div class="friend-info">
-      <div>
-        <div class="friend-name">${friend.friend_name}</div>
-        <div class="friend-email">${friend.friend_email}</div>
-      </div>
-    </div>
-  `;
-  
-  const actionsDiv = document.createElement('div');
-  actionsDiv.className = 'friend-actions';
-  
-  const viewListsBtn = document.createElement('button');
-  viewListsBtn.className = 'btn-small';
-  viewListsBtn.textContent = 'View Lists';
-  viewListsBtn.addEventListener('click', async () => {
-    await addToRecentFriends(friend.friend_id);
-    hideModal();
-    viewFriendLists(friend.friend_id, friend.friend_name);
-  });
-  actionsDiv.appendChild(viewListsBtn);
-  
-  friendDiv.querySelector('.friend-info').appendChild(actionsDiv);
-  
-  return friendDiv;
-}
-
 async function loadBrowseFriends() {
   const container = document.getElementById('browseFriendsContainer');
   container.innerHTML = '<div class="loading">Loading friends...</div>';
@@ -4536,7 +4503,9 @@ function createFriendCard(friend, isRecent = false) {
   const friendDiv = document.createElement('div');
   friendDiv.className = 'friend-item';
   friendDiv.style.marginBottom = '8px';
-  
+  friendDiv.dataset.friendName = friend.friend_name.toLowerCase();
+  friendDiv.dataset.friendEmail = (friend.friend_email || '').toLowerCase();
+
   friendDiv.innerHTML = `
     <div class="friend-info">
       <div>
@@ -4545,21 +4514,22 @@ function createFriendCard(friend, isRecent = false) {
       </div>
     </div>
   `;
-  
+
   const actionsDiv = document.createElement('div');
   actionsDiv.className = 'friend-actions';
-  
+
   const viewListsBtn = document.createElement('button');
   viewListsBtn.className = 'btn-small';
   viewListsBtn.textContent = 'View Lists';
   viewListsBtn.addEventListener('click', async () => {
     await addToRecentFriends(friend.friend_id);
+    if (!isRecent) hideModal(); // Close modal when viewing from Browse Friends
     viewFriendLists(friend.friend_id, friend.friend_name);
   });
   actionsDiv.appendChild(viewListsBtn);
-  
+
   friendDiv.querySelector('.friend-info').appendChild(actionsDiv);
-  
+
   return friendDiv;
 }
 
