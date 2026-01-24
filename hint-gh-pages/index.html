@@ -398,7 +398,7 @@
 <body>
   <div class="header">
     <h1>hint</h1>
-    <p>The smarter way to share your wishlist</p>
+    <p>The smarter way to share your hintlist</p>
   </div>
 
   <div class="container">
@@ -445,7 +445,7 @@
   </div>
 
   <div class="footer">
-    <p>Powered by <a href="#">hint</a> - Track products, share wishlists, never miss a deal.</p>
+    <p>Powered by <a href="#">hint</a> - Track products, share hintlists, never miss a deal.</p>
   </div>
 
   <!-- Claim Modal -->
@@ -616,8 +616,8 @@
       showMessage('formMessage', 'Loading hintlist...', 'info');
 
       try {
-        // Find list by access code (FIXED: using access_code instead of share_code)
-        const response = await fetch(
+        // Try access_code first, fall back to share_code for backwards compatibility
+        let response = await fetch(
           `${SUPABASE_URL}/rest/v1/lists?access_code=eq.${code}&is_public=eq.true&select=*`,
           {
             headers: {
@@ -627,7 +627,21 @@
           }
         );
 
-        const lists = await response.json();
+        let lists = await response.json();
+
+        // If no results with access_code, try share_code (database might use either name)
+        if (response.ok && lists.length === 0) {
+          response = await fetch(
+            `${SUPABASE_URL}/rest/v1/lists?share_code=eq.${code}&is_public=eq.true&select=*`,
+            {
+              headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          lists = await response.json();
+        }
 
         if (!response.ok || lists.length === 0) {
           showMessage('formMessage', 'Invalid access code or hintlist not found. Please check the code and try again.', 'error');
@@ -743,8 +757,11 @@
       });
 
       // Update URL with access code (for easy sharing)
-      const newURL = `${window.location.origin}${window.location.pathname}?code=${currentList.access_code}`;
-      window.history.replaceState({}, '', newURL);
+      const listCode = currentList.access_code || currentList.share_code;
+      if (listCode) {
+        const newURL = `${window.location.origin}${window.location.pathname}?code=${listCode}`;
+        window.history.replaceState({}, '', newURL);
+      }
     }
 
     function escapeHtml(text) {
