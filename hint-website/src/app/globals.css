@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+:root {
+  /* Hint Green Palette - replacing Phantom's purples */
+  --hint-50: #f0fdf4;
+  --hint-100: #dcfce7;
+  --hint-200: #bbf7d0;
+  --hint-300: #86efac;
+  --hint-400: #4ade80;
+  --hint-500: #22c55e;
+  --hint-600: #16a34a;
+  --hint-700: #15803d;
+  --hint-800: #166534;
+  --hint-900: #14532d;
+  --hint-950: #052e16;
+
+  /* Accent colors for feature cards */
+  --accent-mint: #d1fae5;
+  --accent-lime: #ecfccb;
+  --accent-teal: #ccfbf1;
+  --accent-emerald: #a7f3d0;
+
+  /* Neutrals */
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-logo: var(--font-logo);
+  --color-hint-50: var(--hint-50);
+  --color-hint-100: var(--hint-100);
+  --color-hint-200: var(--hint-200);
+  --color-hint-300: var(--hint-300);
+  --color-hint-400: var(--hint-400);
+  --color-hint-500: var(--hint-500);
+  --color-hint-600: var(--hint-600);
+  --color-hint-700: var(--hint-700);
+  --color-hint-800: var(--hint-800);
+  --color-hint-900: var(--hint-900);
+  --color-hint-950: var(--hint-950);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.5); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--hint-500) 0%, var(--hint-700) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Feature card hover effect */
+.feature-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Scroll animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out forwards;
+}
+
+/* Staggered animation delays */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Selection color */
+::selection {
+  background-color: var(--hint-200);
+  color: var(--hint-900);
+}
+
+/* Smooth focus outlines */
+:focus-visible {
+  outline: 2px solid var(--hint-500);
+  outline-offset: 2px;
+}
