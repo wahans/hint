@@ -58,7 +58,7 @@ export function Footer() {
               <span className="text-3xl" style={{ fontFamily: 'var(--font-logo)' }}>hint</span>
             </Link>
             <p className="text-[var(--hint-300)] text-sm mb-6">
-              The smart way to share wishlists and never get duplicate gifts again.
+              The smart way to create and share wishlists.
             </p>
             <div className="flex gap-4">
               {socialLinks.map((social) => (
