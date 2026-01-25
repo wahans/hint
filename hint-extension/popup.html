@@ -586,6 +586,7 @@
     /* Product count preview when collapsed */
     .list-products-preview {
       display: flex;
+      align-items: center;
       gap: var(--space-1);
       margin-top: var(--space-2);
       opacity: 1;
@@ -616,6 +617,7 @@
       font-size: var(--font-xs);
       color: var(--text-tertiary);
       margin-left: var(--space-1);
+      line-height: 1;
     }
     
     .list-header {
@@ -1465,12 +1467,13 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 4px;
+      gap: 8px;
     }
 
     .list-products-preview.inline {
       margin: 0;
       padding: 0;
+      align-items: center;
     }
 
     /* View header with primary action button */
