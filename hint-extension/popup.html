@@ -163,11 +163,11 @@
     }
     
     body {
-      width: 420px;
-      min-height: 500px;
+      width: 380px;
+      min-height: 480px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: var(--font-base);
-      line-height: var(--leading-normal);
+      font-size: var(--font-sm);
+      line-height: var(--leading-snug);
       background: var(--bg-primary);
       color: var(--text-primary);
       transition: background var(--transition-slow), color var(--transition-slow);
@@ -284,20 +284,20 @@
     .header {
       background: var(--green-primary);
       color: white;
-      padding: 20px;
+      padding: 12px 16px;
       text-align: center;
     }
-    
+
     .header h1 {
-      font-size: 32px;
+      font-size: 24px;
       font-weight: 400;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       font-family: 'Leckerli One', cursive;
     }
-    
+
     .header .user-info {
-      font-size: 12px;
-      opacity: 0.9;
+      font-size: 11px;
+      opacity: 0.85;
     }
     
     #browseFriendsBtn:hover, #leaderboardBtn:hover {
@@ -311,38 +311,39 @@
     }
     
     .container {
-      padding: 16px;
+      padding: 12px;
       overflow-y: auto;
       scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
     }
     
     .auth-section {
       background: var(--bg-secondary);
-      padding: 20px;
+      padding: 16px;
       border-radius: 8px;
-      box-shadow: 0 2px 4px var(--shadow-light);
+      box-shadow: 0 1px 3px var(--shadow-light);
+      border: 1px solid var(--border-light);
     }
-    
+
     .auth-section h2 {
-      font-size: 16px;
-      margin-bottom: 12px;
+      font-size: 14px;
+      margin-bottom: 10px;
       color: var(--text-primary);
     }
-    
+
     .auth-section p {
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       color: var(--text-secondary);
-      font-size: 13px;
+      font-size: 12px;
     }
     
     input, select, textarea, button {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
       border: 1px solid var(--border-color);
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 12px;
       font-family: inherit;
       background: var(--input-bg);
       color: var(--text-primary);
@@ -449,39 +450,60 @@
     
     .tab-buttons {
       display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
+      gap: 4px;
+      margin-bottom: 12px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 4px;
+      border: 1px solid var(--border-light);
     }
-    
+
     .tab-buttons button {
       flex: 1;
-      padding: 10px;
-      background: var(--bg-secondary);
-      color: var(--green-primary);
-      border: 2px solid var(--green-primary);
+      padding: 8px 6px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 11px;
+      font-weight: var(--weight-medium);
+      box-shadow: none;
     }
-    
+
+    .tab-buttons button:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      transform: none;
+      box-shadow: none;
+    }
+
     .tab-buttons button.active {
       background: var(--green-primary);
       color: white;
+      box-shadow: 0 1px 3px rgba(34, 136, 85, 0.3);
+    }
+
+    .tab-buttons button.active:hover {
+      background: var(--green-dark);
     }
     
     .form-section {
       background: var(--bg-secondary);
-      padding: 16px;
+      padding: 12px;
       border-radius: 8px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 4px var(--shadow-light);
-    }
-    
-    .form-group {
       margin-bottom: 12px;
+      box-shadow: 0 1px 3px var(--shadow-light);
+      border: 1px solid var(--border-light);
     }
-    
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
     .form-group label {
       display: block;
-      margin-bottom: 6px;
-      font-size: 13px;
+      margin-bottom: 4px;
+      font-size: 11px;
       color: var(--text-secondary);
       font-weight: 500;
     }
@@ -506,16 +528,16 @@
     
     .list-item {
       background: var(--bg-secondary);
-      padding: var(--space-4);
-      margin-bottom: var(--space-3);
-      border-radius: var(--radius-xl);
-      box-shadow: 0 1px 4px var(--shadow-light);
+      padding: var(--space-3);
+      margin-bottom: var(--space-2);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 2px var(--shadow-light);
       border: 1px solid var(--border-light);
       transition: all var(--transition-base);
     }
 
     .list-item:hover {
-      box-shadow: 0 4px 16px var(--shadow-medium);
+      box-shadow: 0 2px 8px var(--shadow-medium);
       border-color: var(--border-color);
     }
 
@@ -592,14 +614,14 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      gap: 12px;
+      margin-bottom: 8px;
+      gap: 8px;
     }
-    
+
     .list-name {
       font-weight: 600;
       color: var(--text-primary);
-      font-size: 15px;
+      font-size: 13px;
       line-height: 1.3;
       white-space: nowrap;
       overflow: hidden;
@@ -617,9 +639,9 @@
     }
     
     .badge {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 12px;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
       font-weight: 500;
     }
     
@@ -666,28 +688,26 @@
     }
     
     .product-item {
-      padding: var(--space-3);
-      margin-top: var(--space-3);
+      padding: var(--space-2);
+      margin-top: var(--space-2);
       background: var(--bg-elevated);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
       border: 1px solid var(--border-light);
-      font-size: var(--font-base);
+      font-size: var(--font-sm);
       position: relative;
       display: flex;
-      gap: var(--space-3);
+      gap: var(--space-2);
       align-items: flex-start;
       transition: all var(--transition-base);
     }
 
     .product-item:hover {
       border-color: var(--green-primary);
-      box-shadow: 0 2px 12px var(--shadow-medium);
-      transform: translateX(2px);
+      box-shadow: 0 1px 6px var(--shadow-medium);
     }
 
-    /* First product has more margin */
     .product-item:first-child {
-      margin-top: var(--space-4);
+      margin-top: var(--space-3);
     }
 
     /* Stagger animation for products loading in */
@@ -714,8 +734,8 @@
     
     .product-thumbnail {
       flex-shrink: 0;
-      width: 60px;
-      height: 60px;
+      width: 44px;
+      height: 44px;
       border-radius: 4px;
       overflow: hidden;
       background: var(--bg-tertiary);
@@ -747,16 +767,16 @@
     
     .product-name {
       color: var(--text-primary);
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       font-weight: 500;
-      font-size: 13px;
-      line-height: 1.4;
+      font-size: 12px;
+      line-height: 1.3;
     }
-    
+
     .product-meta {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-secondary);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     
     .product-meta.claimed-status {
@@ -800,23 +820,23 @@
     }
     
     .btn-small {
-      padding: 6px 12px;
+      padding: 5px 10px;
       font-size: 11px;
       width: auto;
       margin: 0;
-      min-height: 32px; /* Better touch target */
+      min-height: 28px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 4px;
     }
-    
+
     .btn-tiny {
       padding: 2px 6px;
       font-size: 10px;
       width: auto;
       margin: 0;
-      min-height: 20px;
+      min-height: 18px;
       display: inline-flex;
       align-items: center;
       border-radius: 4px;
@@ -824,12 +844,12 @@
 
     /* Icon-only button style */
     .btn-icon {
-      padding: var(--space-2) var(--space-3);
-      font-size: var(--font-md);
+      padding: var(--space-1) var(--space-2);
+      font-size: var(--font-base);
       width: auto;
-      min-width: 40px;
+      min-width: 32px;
       margin: 0;
-      min-height: 36px; /* Phase 6: Touch-friendly size */
+      min-height: 32px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -1057,9 +1077,9 @@
     .modal {
       background: var(--bg-secondary);
       border-radius: 12px;
-      padding: 24px;
-      width: 340px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      padding: 16px;
+      width: 320px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
       animation: modalSlideIn 0.2s ease-out;
       border: 1px solid var(--border-color);
     }
@@ -1076,22 +1096,22 @@
     }
     
     .modal-header {
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-    
+
     .modal-body {
-      font-size: 14px;
+      font-size: 12px;
       color: var(--text-secondary);
-      margin-bottom: 20px;
-      line-height: 1.5;
+      margin-bottom: 14px;
+      line-height: 1.4;
     }
-    
+
     .modal-buttons {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
     
     .modal-buttons button {
@@ -1337,14 +1357,14 @@
 
     /* More actions button */
     .btn-more {
-      padding: var(--space-1) var(--space-2);
-      font-size: var(--font-lg);
-      min-width: 32px;
-      min-height: 32px;
+      padding: 4px 6px;
+      font-size: 12px;
+      min-width: 26px;
+      min-height: 26px;
       background: var(--bg-tertiary);
       color: var(--text-secondary);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-sm);
       margin: 0;
       box-shadow: none;
     }
@@ -1358,16 +1378,16 @@
 
     /* Refresh icon button */
     .btn-refresh {
-      padding: var(--space-1) var(--space-2);
-      min-width: 32px;
-      min-height: 32px;
+      padding: 4px 6px;
+      min-width: 26px;
+      min-height: 26px;
       background: var(--bg-tertiary);
       color: var(--text-secondary);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-sm);
       margin: 0;
       box-shadow: none;
-      font-size: var(--font-md);
+      font-size: 12px;
     }
 
     .btn-refresh:hover {
@@ -1780,10 +1800,10 @@
     <!-- Main App Section -->
     <div id="appSection" class="hidden">
       <div class="tab-buttons">
-        <button id="addTab" class="active">Add<br>Product</button>
-        <button id="myListsTab">My<br>Lists</button>
-        <button id="myClaimsTab">My<br>Claims</button>
-        <button id="viewHintlistTab">Find<br>Hintlist</button>
+        <button id="addTab" class="active">Add</button>
+        <button id="myListsTab">Lists</button>
+        <button id="myClaimsTab">Claims</button>
+        <button id="viewHintlistTab">Find</button>
       </div>
 
       <!-- Add Product View -->
@@ -1815,40 +1835,40 @@
           <button id="createListBtn" class="secondary">+ Create New List</button>
           <button id="addProductBtn">Add to List</button>
           
-          <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
-            💡 Tip: Create a list first, then add products to it
+          <p style="font-size: 10px; color: var(--text-tertiary); margin-top: 6px;">
+            💡 Create a list first, then add products
           </p>
         </div>
       </div>
 
       <!-- My Lists View -->
       <div id="myListsView" class="hidden">
-        <div style="margin-bottom: 12px; display: flex; gap: 8px; align-items: center;">
+        <div style="margin-bottom: 10px; display: flex; gap: 6px; align-items: center;">
           <button id="createListFromMyListsBtn" class="btn-small" style="flex: 1;">+ New List</button>
           <button id="refreshListsBtn" class="btn-refresh" aria-label="Refresh lists" title="Refresh">🔄</button>
         </div>
         <div class="lists-container" id="myListsContainer">
-          <div class="loading">Loading your lists...</div>
+          <div class="loading">Loading lists...</div>
         </div>
       </div>
 
       <!-- My Claims View -->
       <div id="myClaimsView" class="hidden">
-        <div style="margin-bottom: 12px; display: flex; gap: 8px; align-items: center;">
-          <span style="flex: 1; font-size: var(--font-sm); color: var(--text-secondary);">Items you've claimed from friends</span>
+        <div style="margin-bottom: 10px; display: flex; gap: 6px; align-items: center;">
+          <span style="flex: 1; font-size: 10px; color: var(--text-secondary);">Items claimed from friends</span>
           <button id="refreshClaimsBtn" class="btn-refresh" aria-label="Refresh claims" title="Refresh">🔄</button>
         </div>
         <div class="lists-container" id="myClaimsContainer">
-          <div class="loading">Loading your claims...</div>
+          <div class="loading">Loading claims...</div>
         </div>
       </div>
 
       <!-- Browse Friends View -->
       <div id="browseFriendsView" class="hidden">
-        <div class="form-section" style="padding: var(--space-3);">
+        <div class="form-section" style="padding: 8px;">
           <div class="form-group" style="margin-bottom: 0;">
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <input type="text" id="friendSearchInput" placeholder="Search friends..." style="margin-bottom: 0; flex: 1;">
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <input type="text" id="friendSearchInput" placeholder="Search friends..." style="margin-bottom: 0; flex: 1; padding: 6px 8px;">
               <button id="refreshFriendsBtn" class="btn-refresh" aria-label="Refresh friends" title="Refresh">🔄</button>
               <div class="dropdown-container" id="friendsMoreDropdown">
                 <button class="btn-more" aria-label="More options" title="More">⋯</button>
@@ -1862,17 +1882,17 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Recently Viewed -->
-        <div id="recentFriendsSection" class="hidden" style="margin-bottom: 16px;">
-          <h3 style="font-size: 13px; color: #6c757d; margin-bottom: 8px; font-weight: 600;">⏱️ RECENTLY VIEWED</h3>
+        <div id="recentFriendsSection" class="hidden" style="margin-bottom: 10px;">
+          <h3 style="font-size: 10px; color: var(--text-tertiary); margin-bottom: 6px; font-weight: 600; text-transform: uppercase;">⏱️ Recent</h3>
           <div id="recentFriendsContainer"></div>
         </div>
-        
+
         <!-- All Friends -->
-        <h3 style="font-size: 13px; color: #6c757d; margin-bottom: 8px; font-weight: 600;">👥 ALL FRIENDS</h3>
+        <h3 style="font-size: 10px; color: var(--text-tertiary); margin-bottom: 6px; font-weight: 600; text-transform: uppercase;">👥 All Friends</h3>
         <div class="lists-container" id="browseFriendsContainer">
-          <div class="loading">Loading friends...</div>
+          <div class="loading">Loading...</div>
         </div>
       </div>
 
@@ -1889,10 +1909,9 @@
         <div id="hintlistContainer"></div>
       </div>
       
-      <div class="divider"></div>
-      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-        <button id="logoutBtn" class="secondary btn-small" style="white-space: nowrap; flex-shrink: 0;">Sign Out</button>
-        <span style="font-size: 10px; color: var(--text-secondary); white-space: nowrap;">built with ❤️ by the hint team</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-light);">
+        <button id="logoutBtn" class="secondary btn-small" style="white-space: nowrap;">Sign Out</button>
+        <span style="font-size: 9px; color: var(--text-tertiary);">hint team</span>
         <button id="footerSettingsBtn" class="btn-icon btn-icon-outlined" aria-label="Open settings" title="Settings">⚙️</button>
       </div>
     </div>
