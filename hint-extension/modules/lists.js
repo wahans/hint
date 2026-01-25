@@ -389,14 +389,21 @@ export async function toggleListNotifications(id, level) {
 
 // Export list to Excel (CSV format)
 export function exportListToExcel(list, products) {
-  const headers = ['Product Name', 'URL', 'Claimed', 'Date Added', 'Current Price'];
+  const headers = ['Product Name', 'URL', 'Claimed', 'Claimed By', 'Date Added', 'Current Price'];
   const rows = [headers];
 
   products.forEach(product => {
+    // Determine who claimed the product
+    let claimedBy = '';
+    if (product.claimed_by) {
+      claimedBy = product.guest_claimer_name || product.guest_claimer_email || 'A friend';
+    }
+
     const row = [
       product.name || '',
       product.url || '',
       product.claimed_by ? 'Yes' : 'No',
+      claimedBy,
       product.created_at ? new Date(product.created_at).toLocaleDateString() : '',
       product.current_price ? `$${product.current_price}` : 'N/A'
     ];
