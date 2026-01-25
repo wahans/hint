@@ -6,6 +6,7 @@ import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
 import { Text, FAB, Card, IconButton, Chip } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
 import type { ListsScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
 import { listService } from '../../../shared/services';
@@ -56,10 +57,20 @@ export default function MyListsScreen({ navigation }: ListsScreenProps<'MyLists'
 
   const handleRefresh = () => loadLists(true);
 
+  const handleListPress = (item: List) => {
+    Haptics.selectionAsync();
+    navigation.navigate('ListDetail', { listId: item.id, listName: item.name });
+  };
+
+  const handleCreateList = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    navigation.navigate('CreateList');
+  };
+
   const renderList = ({ item }: { item: List }) => (
     <Card
       style={styles.card}
-      onPress={() => navigation.navigate('ListDetail', { listId: item.id, listName: item.name })}
+      onPress={() => handleListPress(item)}
       accessibilityLabel={`${item.name}, ${item.is_public ? 'public' : 'private'} list${item.key_date ? `, due ${item.key_date}` : ''}`}
       accessibilityRole="button"
       accessibilityHint="Opens list details"
@@ -102,7 +113,7 @@ export default function MyListsScreen({ navigation }: ListsScreenProps<'MyLists'
           title="No lists yet"
           description="Create your first wishlist to start tracking products"
           actionLabel="Create List"
-          onAction={() => navigation.navigate('CreateList')}
+          onAction={handleCreateList}
         />
       ) : (
         <FlatList
@@ -124,7 +135,7 @@ export default function MyListsScreen({ navigation }: ListsScreenProps<'MyLists'
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         color={theme.colors.onPrimary}
-        onPress={() => navigation.navigate('CreateList')}
+        onPress={handleCreateList}
         accessibilityLabel="Create new list"
         accessibilityRole="button"
       />
@@ -145,7 +156,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   card: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   cardRight: {
     flexDirection: 'row',

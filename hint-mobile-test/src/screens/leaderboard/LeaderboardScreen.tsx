@@ -6,6 +6,7 @@ import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { Text, Card, Avatar, Chip, SegmentedButtons, Surface } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
 import type { LeaderboardScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -13,6 +14,7 @@ import { leaderboardService } from '../../../shared/services';
 import type { LeaderboardEntry as LeaderboardEntryType, LeaderboardTimeframe } from '../../../shared/types';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import EmptyState from '../../components/EmptyState';
+import { colors } from '../../theme/colors';
 
 // Extended interface for display
 interface LeaderboardEntry extends LeaderboardEntryType {
@@ -71,21 +73,27 @@ export default function LeaderboardScreen({ navigation }: LeaderboardScreenProps
 
   const handleRefresh = () => loadLeaderboard(true);
 
-  const getRankColor = (rank: number) => {
+  const getRankStyle = (rank: number) => {
     switch (rank) {
       case 1:
-        return '#FFD700'; // Gold
+        return { background: colors.medal.gold.background, text: colors.medal.gold.text };
       case 2:
-        return '#C0C0C0'; // Silver
+        return { background: colors.medal.silver.background, text: colors.medal.silver.text };
       case 3:
-        return '#CD7F32'; // Bronze
+        return { background: colors.medal.bronze.background, text: colors.medal.bronze.text };
       default:
-        return theme.colors.surfaceVariant;
+        return { background: theme.colors.surfaceVariant, text: theme.colors.onSurfaceVariant };
     }
+  };
+
+  const handlePeriodChange = (value: string) => {
+    Haptics.selectionAsync();
+    setPeriod(value as typeof period);
   };
 
   const renderEntry = ({ item }: { item: LeaderboardEntry }) => {
     const isCurrentUser = item.user_id === user?.id;
+    const rankStyle = getRankStyle(item.rank);
 
     return (
       <Card
@@ -93,14 +101,15 @@ export default function LeaderboardScreen({ navigation }: LeaderboardScreenProps
           styles.entryCard,
           isCurrentUser && { borderColor: theme.colors.primary, borderWidth: 2 },
         ]}
+        accessibilityLabel={`Rank ${item.rank}: ${item.display_name}${isCurrentUser ? ', you' : ''}, ${item.points} points, ${item.streak_days} day streak`}
       >
         <Card.Content style={styles.entryContent}>
           <View style={styles.rankContainer}>
             <Surface
-              style={[styles.rankBadge, { backgroundColor: getRankColor(item.rank) }]}
+              style={[styles.rankBadge, { backgroundColor: rankStyle.background }]}
               elevation={1}
             >
-              <Text variant="titleMedium" style={styles.rankText}>
+              <Text variant="titleMedium" style={[styles.rankText, { color: rankStyle.text }]}>
                 {item.rank}
               </Text>
             </Surface>
@@ -149,7 +158,7 @@ export default function LeaderboardScreen({ navigation }: LeaderboardScreenProps
         <View style={styles.header}>
           <SegmentedButtons
             value={period}
-            onValueChange={(value) => setPeriod(value as typeof period)}
+            onValueChange={handlePeriodChange}
             buttons={[
               { value: 'weekly', label: 'This Week' },
               { value: 'monthly', label: 'This Month' },
@@ -167,7 +176,7 @@ export default function LeaderboardScreen({ navigation }: LeaderboardScreenProps
       <View style={styles.header}>
         <SegmentedButtons
           value={period}
-          onValueChange={(value) => setPeriod(value as typeof period)}
+          onValueChange={handlePeriodChange}
           buttons={[
             { value: 'weekly', label: 'This Week' },
             { value: 'monthly', label: 'This Month' },
@@ -214,14 +223,14 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   entryCard: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   entryContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   rankContainer: {
-    marginRight: 12,
+    marginRight: 16,
   },
   rankBadge: {
     width: 32,
@@ -232,22 +241,21 @@ const styles = StyleSheet.create({
   },
   rankText: {
     fontWeight: '700',
-    color: '#fff',
   },
   entryInfo: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 16,
   },
   stats: {
     flexDirection: 'row',
-    marginTop: 4,
-    gap: 4,
+    marginTop: 8,
+    gap: 8,
   },
   statChip: {
     height: 24,
   },
   pointsContainer: {
     alignItems: 'center',
-    marginLeft: 8,
+    marginLeft: 16,
   },
 });

@@ -151,14 +151,14 @@ export default function ProductCard({
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom: 12,
+    marginBottom: 16,
     borderRadius: 12,
     overflow: 'hidden',
   },
   content: {
     flexDirection: 'row',
-    padding: 12,
-    gap: 12,
+    padding: 16,
+    gap: 16,
   },
   imageContainer: {
     width: 72,
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     paddingTop: 0,
-    paddingHorizontal: 12,
-    paddingBottom: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
 });

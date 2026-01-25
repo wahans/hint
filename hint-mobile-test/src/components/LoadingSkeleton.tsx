@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderRadius: 12,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   listContent: {
     flex: 1,
@@ -106,15 +106,15 @@ const styles = StyleSheet.create({
   },
   productSkeleton: {
     flexDirection: 'row',
-    padding: 12,
+    padding: 16,
     borderRadius: 12,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   productImage: {
     width: 80,
     height: 80,
     borderRadius: 8,
-    marginRight: 12,
+    marginRight: 16,
   },
   productInfo: {
     flex: 1,

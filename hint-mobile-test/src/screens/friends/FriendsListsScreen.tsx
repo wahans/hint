@@ -19,6 +19,7 @@ import {
   Badge,
 } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
 import type { FriendsScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -97,12 +98,14 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
   const handleAddFriend = async () => {
     const email = friendEmail.trim().toLowerCase();
     if (!email) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       setRequestError('Please enter an email address');
       return;
     }
 
     // Basic email validation
     if (!email.includes('@') || !email.includes('.')) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       setRequestError('Please enter a valid email address');
       return;
     }
@@ -114,13 +117,16 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
     try {
       const result = await friendsService.sendFriendRequest(email);
       if (result.error) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         setRequestError(result.error.message);
       } else {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         setAddFriendModalVisible(false);
         setFriendEmail('');
         Alert.alert('Request Sent', `Friend request sent to ${email}!`);
       }
     } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setRequestError('Failed to send friend request. Please try again.');
     } finally {
       setIsSendingRequest(false);
@@ -143,28 +149,35 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
   };
 
   const handleAcceptRequest = async (requestId: string, fromName: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
       const result = await friendsService.acceptFriendRequest(requestId);
       if (result.error) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         Alert.alert('Error', result.error.message);
       } else {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         Alert.alert('Friend Added', `You are now friends with ${fromName}!`);
         loadFriendsLists(true);
       }
     } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert('Error', 'Failed to accept friend request');
     }
   };
 
   const handleRejectRequest = async (requestId: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
       const result = await friendsService.rejectFriendRequest(requestId);
       if (result.error) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         Alert.alert('Error', result.error.message);
       } else {
         loadFriendsLists(true);
       }
     } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert('Error', 'Failed to reject friend request');
     }
   };
@@ -358,7 +371,7 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
 
       {/* Pending requests badge */}
       {pendingRequests.length > 0 && !fabOpen && (
-        <Badge style={styles.badge} size={20}>
+        <Badge style={[styles.badge, { backgroundColor: theme.colors.error }]} size={20}>
           {pendingRequests.length}
         </Badge>
       )}
@@ -441,7 +454,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   requestCard: {
     marginBottom: 8,
@@ -457,12 +470,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   requestText: {
-    marginLeft: 12,
+    marginLeft: 16,
     flex: 1,
   },
   requestActions: {
     flexDirection: 'row',
-    gap: 4,
+    gap: 8,
   },
   divider: {
     marginTop: 16,
@@ -473,17 +486,17 @@ const styles = StyleSheet.create({
   friendHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   friendName: {
-    marginLeft: 12,
+    marginLeft: 16,
   },
   listCard: {
     marginBottom: 8,
     marginLeft: 52,
   },
   countChip: {
-    marginRight: 12,
+    marginRight: 16,
   },
   noListsText: {
     textAlign: 'center',
@@ -493,27 +506,26 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 100,
     right: 16,
-    backgroundColor: '#FF5722',
   },
   modalContainer: {
-    margin: 20,
+    margin: 24,
     padding: 24,
-    borderRadius: 12,
+    borderRadius: 16,
   },
   modalTitle: {
     marginBottom: 8,
   },
   modalDescription: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   emailInput: {
     marginBottom: 8,
   },
   errorText: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   modalActions: {
-    gap: 12,
+    gap: 16,
     marginTop: 16,
   },
   modalButton: {

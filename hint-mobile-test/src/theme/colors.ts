@@ -107,4 +107,23 @@ export const colors = {
     increase: '#ef4444',  // Red for price increases
     unchanged: '#737373',
   },
+
+  // Leaderboard medal colors
+  medal: {
+    gold: {
+      background: '#FFC107',  // Amber-500 for better contrast
+      text: '#1a1a1a',  // Dark text for accessibility
+    },
+    silver: {
+      background: '#9E9E9E',  // Gray-500
+      text: '#1a1a1a',  // Dark text for accessibility
+    },
+    bronze: {
+      background: '#A1887F',  // Brown-300
+      text: '#1a1a1a',  // Dark text for accessibility
+    },
+  },
+
+  // Semantic surface colors
+  surfaceLight: '#f5f5f5',  // For light backgrounds in modals
 };

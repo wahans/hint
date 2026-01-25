@@ -7,6 +7,7 @@ import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Linking, Alert, Image, Share, Clipboard } from 'react-native';
 import { Text, IconButton, Portal, Modal, Button, Surface } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
 import type { ListsScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -15,6 +16,7 @@ import type { Product, List } from '../../../shared/types';
 import ProductCard from '../../components/ProductCard';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import EmptyState from '../../components/EmptyState';
+import { colors } from '../../theme/colors';
 
 export default function ListDetailScreen({ route, navigation }: ListsScreenProps<'ListDetail'>) {
   const { listId, listName } = route.params;
@@ -101,6 +103,7 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
 
     // Check if already claimed
     if (selectedProduct.claimed_by || selectedProduct.guest_claimer_name) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       Alert.alert('Already Claimed', 'This item has already been claimed by someone.');
       return;
     }
@@ -109,8 +112,10 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
     try {
       const result = await claimService.claimProduct(selectedProduct.id);
       if (result.error) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         Alert.alert('Error', result.error.message);
       } else {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         Alert.alert('Success', 'You have claimed this item!', [
           {
             text: 'OK',
@@ -410,7 +415,7 @@ const styles = StyleSheet.create({
   modalImageContainer: {
     width: '100%',
     height: 180,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: colors.surfaceLight,
     borderRadius: 12,
     marginBottom: 16,
     overflow: 'hidden',
