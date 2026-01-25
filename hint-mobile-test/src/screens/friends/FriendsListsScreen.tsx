@@ -202,16 +202,20 @@ export default function FriendsListsScreen({ navigation }: FriendsScreenProps<'F
                     mode="contained"
                     containerColor={theme.colors.primaryContainer}
                     iconColor={theme.colors.primary}
-                    size={20}
+                    size={24}
                     onPress={() => handleAcceptRequest(request.id, displayName)}
+                    accessibilityLabel={`Accept friend request from ${displayName}`}
+                    accessibilityRole="button"
                   />
                   <IconButton
                     icon="close"
                     mode="contained"
                     containerColor={theme.colors.errorContainer}
                     iconColor={theme.colors.error}
-                    size={20}
+                    size={24}
                     onPress={() => handleRejectRequest(request.id)}
+                    accessibilityLabel={`Reject friend request from ${displayName}`}
+                    accessibilityRole="button"
                   />
                 </View>
               </Card.Content>

@@ -96,8 +96,8 @@ export const colors = {
       dark: '#fafafa',
     },
     secondary: {
-      light: '#525252',
-      dark: '#a3a3a3',
+      light: '#404040',  // Improved contrast (was #525252)
+      dark: '#d4d4d4',   // Improved contrast (was #a3a3a3)
     },
   },
 

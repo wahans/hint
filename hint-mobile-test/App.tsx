@@ -23,6 +23,10 @@ import RootNavigator from './src/navigation/RootNavigator';
 // Services
 import { initializeServices } from './src/services/init';
 
+// Components
+import ErrorBoundary from './src/components/ErrorBoundary';
+import LoadingScreen from './src/components/LoadingScreen';
+
 // Ignore specific warnings in development
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
@@ -138,21 +142,23 @@ export default function App() {
     init();
   }, []);
 
-  // Show nothing until services are initialized
+  // Show loading screen until services are initialized
   if (!isInitialized) {
-    return null;
+    return <LoadingScreen message="Starting hint..." />;
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <ThemeProvider>
-          <AuthProvider>
-            <NotificationProvider>
-              <AppContent />
-            </NotificationProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider>
+            <AuthProvider>
+              <NotificationProvider>
+                <AppContent />
+              </NotificationProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

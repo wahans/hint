@@ -32,7 +32,13 @@ export default function ProductCard({
   const isClaimed = !!product.claimed_by || !!product.guest_claimer_name;
 
   return (
-    <Card style={styles.card} onPress={onPress}>
+    <Card
+      style={styles.card}
+      onPress={onPress}
+      accessibilityLabel={`${product.name}${product.current_price ? `, ${formatPrice(product.current_price)}` : ''}${isClaimed ? ', claimed' : ''}${product.in_stock === false ? ', out of stock' : ''}`}
+      accessibilityRole="button"
+      accessibilityHint={onPress ? "Opens product details" : undefined}
+    >
       <View style={styles.content}>
         {/* Product Image */}
         <View style={[styles.imageContainer, { backgroundColor: theme.colors.surfaceVariant }]}>
@@ -132,6 +138,8 @@ export default function ProductCard({
             onPress={onClaimToggle}
             icon={isClaimed ? 'close' : 'gift'}
             compact
+            accessibilityLabel={isClaimed ? `Unclaim ${product.name}` : `Claim ${product.name}`}
+            accessibilityRole="button"
           >
             {isClaimed ? 'Unclaim' : 'Claim Item'}
           </Button>
@@ -188,7 +196,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   chip: {
-    height: 26,
+    height: 28,
+    minHeight: 28,
   },
   chipText: {
     fontSize: 11,

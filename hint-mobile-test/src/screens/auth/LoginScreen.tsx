@@ -17,11 +17,54 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+
+  const validateEmail = (value: string) => {
+    if (!value.trim()) {
+      return 'Email is required';
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value.trim())) {
+      return 'Please enter a valid email address';
+    }
+    return '';
+  };
+
+  const validatePassword = (value: string) => {
+    if (!value) {
+      return 'Password is required';
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+    return '';
+  };
+
+  const handleEmailBlur = () => {
+    setEmailTouched(true);
+    setEmailError(validateEmail(email));
+  };
+
+  const handlePasswordBlur = () => {
+    setPasswordTouched(true);
+    setPasswordError(validatePassword(password));
+  };
 
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter both email and password');
+    // Validate all fields
+    const emailErr = validateEmail(email);
+    const passwordErr = validatePassword(password);
+
+    setEmailTouched(true);
+    setPasswordTouched(true);
+    setEmailError(emailErr);
+    setPasswordError(passwordErr);
+
+    if (emailErr || passwordErr) {
       return;
     }
 
@@ -60,29 +103,54 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
             <TextInput
               label="Email"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (emailTouched) setEmailError(validateEmail(text));
+              }}
+              onBlur={handleEmailBlur}
               mode="outlined"
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
+              error={emailTouched && !!emailError}
               style={styles.input}
+              accessibilityLabel="Email address"
+              accessibilityHint="Enter your email address to sign in"
             />
+            {emailTouched && emailError ? (
+              <HelperText type="error" visible={true} style={styles.helperText}>
+                {emailError}
+              </HelperText>
+            ) : null}
 
             <TextInput
               label="Password"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => {
+                setPassword(text);
+                if (passwordTouched) setPasswordError(validatePassword(text));
+              }}
+              onBlur={handlePasswordBlur}
               mode="outlined"
               secureTextEntry={!showPassword}
               autoCapitalize="none"
+              error={passwordTouched && !!passwordError}
               right={
                 <TextInput.Icon
                   icon={showPassword ? 'eye-off' : 'eye'}
                   onPress={() => setShowPassword(!showPassword)}
+                  accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
                 />
               }
               style={styles.input}
+              accessibilityLabel="Password"
+              accessibilityHint="Enter your password to sign in"
             />
+            {passwordTouched && passwordError ? (
+              <HelperText type="error" visible={true} style={styles.helperText}>
+                {passwordError}
+              </HelperText>
+            ) : null}
 
             {error ? (
               <HelperText type="error" visible={!!error}>
@@ -145,7 +213,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   input: {
-    marginBottom: 16,
+    marginBottom: 4,
+  },
+  helperText: {
+    marginBottom: 8,
   },
   button: {
     marginTop: 8,

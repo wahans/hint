@@ -173,6 +173,7 @@ export default function MainTabNavigator() {
         component={ListsStackNavigator}
         options={{
           tabBarLabel: 'My Lists',
+          tabBarAccessibilityLabel: 'My Lists tab',
           tabBarIcon: ({ color, size }) => (
             <Icon source="format-list-bulleted" size={size} color={color} />
           ),
@@ -183,6 +184,7 @@ export default function MainTabNavigator() {
         component={FriendsStackNavigator}
         options={{
           tabBarLabel: 'Friends',
+          tabBarAccessibilityLabel: 'Friends lists tab',
           tabBarIcon: ({ color, size }) => (
             <Icon source="account-group" size={size} color={color} />
           ),
@@ -193,6 +195,7 @@ export default function MainTabNavigator() {
         component={LeaderboardStackNavigator}
         options={{
           tabBarLabel: 'Leaderboard',
+          tabBarAccessibilityLabel: 'Leaderboard tab',
           tabBarIcon: ({ color, size }) => (
             <Icon source="trophy" size={size} color={color} />
           ),
@@ -203,6 +206,7 @@ export default function MainTabNavigator() {
         component={SettingsStackNavigator}
         options={{
           tabBarLabel: 'Settings',
+          tabBarAccessibilityLabel: 'Settings tab',
           tabBarIcon: ({ color, size }) => (
             <Icon source="cog" size={size} color={color} />
           ),

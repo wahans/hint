@@ -60,6 +60,9 @@ export default function MyListsScreen({ navigation }: ListsScreenProps<'MyLists'
     <Card
       style={styles.card}
       onPress={() => navigation.navigate('ListDetail', { listId: item.id, listName: item.name })}
+      accessibilityLabel={`${item.name}, ${item.is_public ? 'public' : 'private'} list${item.key_date ? `, due ${item.key_date}` : ''}`}
+      accessibilityRole="button"
+      accessibilityHint="Opens list details"
     >
       <Card.Title
         title={item.name}
@@ -122,6 +125,8 @@ export default function MyListsScreen({ navigation }: ListsScreenProps<'MyLists'
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         color={theme.colors.onPrimary}
         onPress={() => navigation.navigate('CreateList')}
+        accessibilityLabel="Create new list"
+        accessibilityRole="button"
       />
     </View>
   );
