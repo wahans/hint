@@ -104,8 +104,8 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 
 ### Technical Debt
 - [x] ~~Consolidate popup.js (5,528 lines) into smaller modules?~~ - Done! 11 ES modules (Jan 24, 2026)
-- [ ] TypeScript migration for remaining JS files?
-- [ ] Remove legacy `dnu/` folder contents entirely?
+- [x] ~~Remove legacy `dnu/` folder contents entirely?~~ - Deleted (Jan 24, 2026)
+- [ ] **TypeScript migration for extension JS files** - Priority: Add package.json, tsconfig, esbuild bundler, convert 15 JS files. Enables shared types with mobile app.
 
 ### Growth Strategy
 - [ ] Partner with specific retailers for enhanced integration?
@@ -123,8 +123,8 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 
 ### Medium Priority
 - [x] ~~**Logo font inconsistent**~~ - Leckerli One already loaded
-- [ ] **Mobile app friends API not connected** - FriendsListsScreen shows TODO for API integration
-- [ ] **Leaderboard using mock data** - LeaderboardScreen not connected to actual user_stats
+- [x] ~~**Mobile app friends API not connected**~~ - Already connected; FriendsService has full Supabase integration (Jan 24, 2026)
+- [x] ~~**Leaderboard using mock data**~~ - Was in abandoned hint-extension/mobile/ folder, deleted (Jan 24, 2026). Production app (hint-mobile-test) already connected.
 
 ### Low Priority
 - [x] ~~**Extension popup overflow on small screens**~~ - Fixed with 560px fixed height, 520px modal max (Jan 24, 2026)
@@ -303,8 +303,10 @@ Quick reference for developing the Hint project with Claude Code.
 | **Chrome Extension** | `/Users/wallyhansen/Desktop/projects/riversideco/hint/hint-extension/` |
 | **Mobile App** | `/Users/wallyhansen/Desktop/projects/riversideco/hint/hint-mobile-test/` |
 | **GitHub Pages Viewer** | `/Users/wallyhansen/Desktop/projects/riversideco/hint/hint-gh-pages/` |
-| **Shared Services** | `/Users/wallyhansen/Desktop/projects/riversideco/hint/hint-extension/shared/` |
+| **Shared Types/Services** | `/Users/wallyhansen/Desktop/projects/riversideco/hint/hint-extension/shared/` |
 | **This Backlog** | `/Users/wallyhansen/Desktop/projects/riversideco/hint/backlog.md` |
+
+> Note: Legacy `hint-extension/mobile/` and `hint-extension/dnu/` folders deleted Jan 24, 2026.
 
 ### Quick Start Prompts
 
