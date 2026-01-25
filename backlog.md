@@ -136,11 +136,11 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 ## Low Priority / Nice to Have
 
 ### UI Polish (Phases 2-6)
-- [x] ~~Phase 2: Button reorganization with dropdown menus~~ - Replaced dropdowns with inline action icons (Jan 24, 2026)
-- [x] ~~Phase 3: Visual hierarchy & typography scale~~ - Added spacing utilities, dividers, card elevation (Jan 24, 2026)
-- [x] ~~Phase 4: Progressive disclosure for advanced features~~ - Added tooltips, help text, empty states (Jan 24, 2026)
-- [x] ~~Phase 5: Micro-interactions & animations~~ - Added press effects, loading dots, staggered animations (Jan 24, 2026)
-- [x] ~~Phase 6: Mobile-responsive optimization~~ - Added reduced motion, high contrast, print styles, small screen support (Jan 24, 2026)
+- [ ] Phase 2: Button reorganization with dropdown menus (2-3 hrs)
+- [ ] Phase 3: Visual hierarchy & typography scale (1-2 hrs)
+- [ ] Phase 4: Progressive disclosure for advanced features (1-2 hrs)
+- [ ] Phase 5: Micro-interactions & animations (1 hr)
+- [ ] Phase 6: Mobile-responsive optimization (2 hrs)
 
 ### Infrastructure
 - [ ] Database query optimization
