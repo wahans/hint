@@ -135,153 +135,90 @@ export function displayMyLists() {
       listDiv.appendChild(dateLineDiv);
     }
 
-    // List actions - consolidated UI
+    // List actions - inline icons row
     const actionsDiv = document.createElement('div');
     actionsDiv.className = 'list-actions-row';
 
-    // Expand/Collapse button (primary)
+    // Expand/Collapse button with preview dots underneath
+    const expandWrapper = document.createElement('div');
+    expandWrapper.className = 'expand-wrapper';
+
     const expandBtn = document.createElement('button');
-    expandBtn.className = 'btn-small secondary';
-    expandBtn.innerHTML = state.expandedLists.has(list.id) ? '▼ Hide' : '▶ Show';
+    expandBtn.className = 'btn-tiny secondary';
+    expandBtn.innerHTML = state.expandedLists.has(list.id) ? '▼' : '▶';
     expandBtn.id = `expand-${list.id}`;
     expandBtn.setAttribute('aria-label', state.expandedLists.has(list.id) ? 'Hide items' : 'Show items');
-    actionsDiv.appendChild(expandBtn);
+    expandBtn.title = state.expandedLists.has(list.id) ? 'Hide items' : 'Show items';
+    expandWrapper.appendChild(expandBtn);
 
-    // Share button (primary, for public lists)
-    if (list.is_public) {
-      const shareBtn = document.createElement('button');
-      shareBtn.className = 'btn-small';
-      shareBtn.innerHTML = '📤 Share';
-      shareBtn.setAttribute('aria-label', 'Share list');
-      shareBtn.addEventListener('click', () => openInviteModal(list));
-      actionsDiv.appendChild(shareBtn);
+    // Add product preview dots directly under expand button
+    if (products.length > 0) {
+      const preview = createProductPreview(products, 5);
+      preview.className = 'list-products-preview inline';
+      expandWrapper.appendChild(preview);
     }
+
+    actionsDiv.appendChild(expandWrapper);
 
     // Spacer
     const spacer = document.createElement('div');
     spacer.style.flex = '1';
     actionsDiv.appendChild(spacer);
 
-    // More options dropdown (contains rename, delete, export, settings)
-    const moreBtn = document.createElement('button');
-    moreBtn.className = 'btn-more';
-    moreBtn.textContent = '⋯';
-    moreBtn.setAttribute('aria-label', 'More options');
-    moreBtn.title = 'More options';
-
-    const dropdownId = `dropdown-${list.id}`;
-    moreBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.querySelectorAll('.actions-dropdown').forEach(d => {
-        if (d.id !== dropdownId) d.remove();
-      });
-
-      const existing = document.getElementById(dropdownId);
-      if (existing) {
-        existing.remove();
-        return;
-      }
-
-      const dropdown = document.createElement('div');
-      dropdown.id = dropdownId;
-      dropdown.className = 'actions-dropdown';
-
-      const notificationLevel = list.notification_level || 'none';
-
-      let dropdownHTML = `
-        <button class="dropdown-menu-item" data-action="rename"><span class="icon">✏️</span> Rename</button>
-        <button class="dropdown-menu-item" data-action="date"><span class="icon">📅</span> ${list.key_date ? 'Edit Date' : 'Set Date'}</button>
-        <button class="dropdown-menu-item" data-action="toggle"><span class="icon">${list.is_public ? '🔒' : '🌍'}</span> ${list.is_public ? 'Make Private' : 'Make Public'}</button>
-        <button class="dropdown-menu-item" data-action="export"><span class="icon">📥</span> Export CSV</button>`;
-
-      if (list.is_public) {
-        dropdownHTML += `
-        <div class="dropdown-divider"></div>
-        <div style="padding: 6px 16px; font-size: 10px; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase;">Notifications</div>
-        <button class="dropdown-menu-item" data-action="notify-none" style="${notificationLevel === 'none' ? 'background: var(--green-light);' : ''}"><span class="icon">🔕</span> None</button>
-        <button class="dropdown-menu-item" data-action="notify-who" style="${notificationLevel === 'who_only' ? 'background: var(--green-light);' : ''}"><span class="icon">👤</span> Who claimed</button>
-        <button class="dropdown-menu-item" data-action="notify-what" style="${notificationLevel === 'what_only' ? 'background: var(--green-light);' : ''}"><span class="icon">🎁</span> What claimed</button>
-        <button class="dropdown-menu-item" data-action="notify-both" style="${notificationLevel === 'both' ? 'background: var(--green-light);' : ''}"><span class="icon">🔔</span> Both</button>`;
-      }
-
-      dropdownHTML += `
-        <div class="dropdown-divider"></div>
-        <button class="dropdown-menu-item danger" data-action="delete"><span class="icon">🗑️</span> Delete List</button>
-      `;
-      dropdown.innerHTML = dropdownHTML;
-
-      const rect = moreBtn.getBoundingClientRect();
-      const dropdownHeight = 200;
-      const spaceBelow = window.innerHeight - rect.bottom;
-      const spaceAbove = rect.top;
-
-      dropdown.style.position = 'fixed';
-      dropdown.style.zIndex = '10000';
-
-      if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
-        dropdown.style.bottom = `${window.innerHeight - rect.top + 4}px`;
-        dropdown.style.left = `${rect.left}px`;
-      } else {
-        dropdown.style.top = `${rect.bottom + 4}px`;
-        dropdown.style.left = `${rect.left}px`;
-      }
-
-      document.body.appendChild(dropdown);
-
-      dropdown.querySelectorAll('.dropdown-item').forEach(item => {
-        item.addEventListener('click', async (e) => {
-          e.stopPropagation();
-          dropdown.remove();
-
-          const action = item.dataset.action;
-          switch (action) {
-            case 'rename':
-              renameList(list.id, list.name);
-              break;
-            case 'date':
-              setKeyDate(list.id, list.name, list.key_date);
-              break;
-            case 'toggle':
-              await toggleListPublic(list.id, !list.is_public);
-              break;
-            case 'export':
-              exportListToExcel(list, products);
-              break;
-            case 'delete':
-              deleteList(list.id, list.name);
-              break;
-            case 'notify-none':
-              await toggleListNotifications(list.id, 'none');
-              break;
-            case 'notify-who':
-              await toggleListNotifications(list.id, 'who_only');
-              break;
-            case 'notify-what':
-              await toggleListNotifications(list.id, 'what_only');
-              break;
-            case 'notify-both':
-              await toggleListNotifications(list.id, 'both');
-              break;
-          }
-        });
-      });
-
-      setTimeout(() => {
-        document.addEventListener('click', function closeDropdown() {
-          dropdown.remove();
-          document.removeEventListener('click', closeDropdown);
-        });
-      }, 10);
-    });
-
-    actionsDiv.appendChild(moreBtn);
-    listDiv.appendChild(actionsDiv);
-
-    // Add product preview dots (visible when collapsed)
-    if (products.length > 0) {
-      const preview = createProductPreview(products, 5);
-      listDiv.appendChild(preview);
+    // Inline action icons (directly clickable)
+    if (list.is_public) {
+      const shareBtn = document.createElement('button');
+      shareBtn.className = 'btn-action-icon';
+      shareBtn.innerHTML = '📤';
+      shareBtn.setAttribute('aria-label', 'Share list');
+      shareBtn.title = 'Share';
+      shareBtn.addEventListener('click', () => openInviteModal(list));
+      actionsDiv.appendChild(shareBtn);
     }
+
+    const renameBtn = document.createElement('button');
+    renameBtn.className = 'btn-action-icon';
+    renameBtn.innerHTML = '✏️';
+    renameBtn.setAttribute('aria-label', 'Rename list');
+    renameBtn.title = 'Rename';
+    renameBtn.addEventListener('click', () => renameList(list.id, list.name));
+    actionsDiv.appendChild(renameBtn);
+
+    const dateBtn = document.createElement('button');
+    dateBtn.className = 'btn-action-icon';
+    dateBtn.innerHTML = '📅';
+    dateBtn.setAttribute('aria-label', list.key_date ? 'Edit date' : 'Set date');
+    dateBtn.title = list.key_date ? 'Edit date' : 'Set date';
+    dateBtn.addEventListener('click', () => setKeyDate(list.id, list.name, list.key_date));
+    actionsDiv.appendChild(dateBtn);
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'btn-action-icon';
+    toggleBtn.innerHTML = list.is_public ? '🔒' : '🌍';
+    toggleBtn.setAttribute('aria-label', list.is_public ? 'Make private' : 'Make public');
+    toggleBtn.title = list.is_public ? 'Make private' : 'Make public';
+    toggleBtn.addEventListener('click', async () => {
+      await toggleListPublic(list.id, !list.is_public);
+    });
+    actionsDiv.appendChild(toggleBtn);
+
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'btn-action-icon';
+    exportBtn.innerHTML = '📥';
+    exportBtn.setAttribute('aria-label', 'Export CSV');
+    exportBtn.title = 'Export CSV';
+    exportBtn.addEventListener('click', () => exportListToExcel(list, products));
+    actionsDiv.appendChild(exportBtn);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn-action-icon danger';
+    deleteBtn.innerHTML = '🗑️';
+    deleteBtn.setAttribute('aria-label', 'Delete list');
+    deleteBtn.title = 'Delete';
+    deleteBtn.addEventListener('click', () => deleteList(list.id, list.name));
+    actionsDiv.appendChild(deleteBtn);
+
+    listDiv.appendChild(actionsDiv);
 
     // Products container (collapsible)
     const productsContainer = document.createElement('div');

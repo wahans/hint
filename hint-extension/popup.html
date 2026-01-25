@@ -165,6 +165,7 @@
     body {
       width: 380px;
       min-height: 480px;
+      max-height: 600px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-size: var(--font-sm);
       line-height: var(--leading-snug);
@@ -173,6 +174,9 @@
       transition: background var(--transition-slow), color var(--transition-slow);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     /* ============================================
@@ -286,6 +290,7 @@
       color: white;
       padding: 12px 16px;
       text-align: center;
+      flex-shrink: 0;
     }
 
     .header h1 {
@@ -315,6 +320,8 @@
       overflow-y: auto;
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
+      flex: 1;
+      min-height: 0;
     }
     
     .auth-section {
@@ -520,10 +527,11 @@
     }
     
     .lists-container {
-      max-height: 350px;
+      flex: 1;
       overflow-y: auto;
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
+      padding-bottom: 8px;
     }
     
     .list-item {
@@ -955,24 +963,42 @@
     /* Compact action row */
     .list-actions-row {
       display: flex;
-      gap: 6px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      align-items: flex-start;
     }
 
     .list-actions-primary {
       display: flex;
-      gap: 6px;
+      gap: 4px;
       flex: 1;
     }
 
     .list-actions-secondary {
       display: flex;
-      gap: 6px;
+      gap: 4px;
     }
     
     .hidden {
+      display: none !important;
+    }
+
+    /* View containers should flex */
+    #appSection {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+
+    #myListsView, #myClaimsView, #browseFriendsView, #viewHintlistView, #addView {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    #myListsView.hidden, #myClaimsView.hidden, #browseFriendsView.hidden, #viewHintlistView.hidden, #addView.hidden {
       display: none !important;
     }
     
@@ -1078,7 +1104,9 @@
       background: var(--bg-secondary);
       border-radius: 12px;
       padding: 16px;
-      width: 320px;
+      width: 340px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
       box-shadow: 0 8px 32px rgba(0,0,0,0.25);
       animation: modalSlideIn 0.2s ease-out;
       border: 1px solid var(--border-color);
@@ -1404,6 +1432,45 @@
 
     .btn-refresh.loading::before {
       display: none;
+    }
+
+    /* Inline action icon buttons */
+    .btn-action-icon {
+      padding: 2px 4px;
+      font-size: 12px;
+      min-width: 24px;
+      min-height: 24px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+      border-radius: var(--radius-sm);
+      margin: 0;
+      box-shadow: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-action-icon:hover {
+      background: var(--bg-hover);
+      transform: scale(1.1);
+      box-shadow: none;
+    }
+
+    .btn-action-icon.danger:hover {
+      background: var(--dropdown-danger-hover);
+    }
+
+    /* Expand wrapper for button + dots */
+    .expand-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .list-products-preview.inline {
+      margin: 0;
+      padding: 0;
     }
 
     /* Badge notification animations */
@@ -1844,8 +1911,8 @@
       <!-- My Lists View -->
       <div id="myListsView" class="hidden">
         <div style="margin-bottom: 10px; display: flex; gap: 6px; align-items: center;">
-          <button id="createListFromMyListsBtn" class="btn-small" style="flex: 1;">+ New List</button>
-          <button id="refreshListsBtn" class="btn-refresh" aria-label="Refresh lists" title="Refresh">🔄</button>
+          <button id="createListFromMyListsBtn" style="flex: 1; padding: 10px; font-size: 13px; font-weight: 600;">+ New List</button>
+          <button id="refreshListsBtn" class="btn-refresh" aria-label="Refresh lists" title="Refresh" style="flex-shrink: 0;">🔄</button>
         </div>
         <div class="lists-container" id="myListsContainer">
           <div class="loading">Loading lists...</div>
@@ -1855,8 +1922,8 @@
       <!-- My Claims View -->
       <div id="myClaimsView" class="hidden">
         <div style="margin-bottom: 10px; display: flex; gap: 6px; align-items: center;">
-          <span style="flex: 1; font-size: 10px; color: var(--text-secondary);">Items claimed from friends</span>
-          <button id="refreshClaimsBtn" class="btn-refresh" aria-label="Refresh claims" title="Refresh">🔄</button>
+          <span style="flex: 1; font-size: 11px; color: var(--text-secondary); font-weight: 500;">Items you've claimed</span>
+          <button id="refreshClaimsBtn" class="btn-refresh" aria-label="Refresh claims" title="Refresh" style="flex-shrink: 0;">🔄</button>
         </div>
         <div class="lists-container" id="myClaimsContainer">
           <div class="loading">Loading claims...</div>
