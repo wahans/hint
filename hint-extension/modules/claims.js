@@ -86,11 +86,23 @@ export async function loadMyClaims() {
         nameDiv.textContent = claim.product_name;
         detailsDiv.appendChild(nameDiv);
 
+        // Price display (consistent with displayProducts)
         if (claim.current_price) {
-          const priceDiv = document.createElement('div');
-          priceDiv.className = 'product-meta';
+          const priceContainer = document.createElement('div');
+          priceContainer.style.display = 'flex';
+          priceContainer.style.alignItems = 'center';
+          priceContainer.style.gap = '8px';
+          priceContainer.style.marginBottom = '4px';
+
+          const priceDiv = document.createElement('span');
+          priceDiv.className = 'product-meta product-price-display';
+          priceDiv.style.fontWeight = '600';
+          priceDiv.style.fontSize = '14px';
+          priceDiv.style.color = 'var(--green-primary)';
           priceDiv.textContent = `$${claim.current_price}`;
-          detailsDiv.appendChild(priceDiv);
+          priceContainer.appendChild(priceDiv);
+
+          detailsDiv.appendChild(priceContainer);
         }
 
         const claimedDiv = document.createElement('div');
@@ -249,7 +261,7 @@ export function displayHintlist(list, products) {
     const productDiv = document.createElement('div');
     productDiv.className = `product-item ${isMine ? 'claimed' : ''} ${isClaimed && !isMine ? 'claimed-other' : ''}`;
 
-    // Thumbnail
+    // Thumbnail (consistent with displayProducts)
     const thumbnailDiv = document.createElement('div');
     thumbnailDiv.className = 'product-thumbnail';
     if (product.image_url) {
@@ -265,7 +277,7 @@ export function displayHintlist(list, products) {
     }
     productDiv.appendChild(thumbnailDiv);
 
-    // Product details
+    // Product details (consistent with displayProducts)
     const detailsDiv = document.createElement('div');
     detailsDiv.className = 'product-details';
 
@@ -273,31 +285,41 @@ export function displayHintlist(list, products) {
     nameDiv.className = 'product-name';
     nameDiv.textContent = product.name;
     if (isClaimed && !isMine) {
-      nameDiv.style.textDecoration = 'line-through';
       nameDiv.style.opacity = '0.6';
     }
     detailsDiv.appendChild(nameDiv);
 
-    if (isMine) {
-      const metaDiv = document.createElement('div');
-      metaDiv.className = 'product-meta';
-      metaDiv.textContent = '✓ You claimed this';
-      detailsDiv.appendChild(metaDiv);
-    } else if (isClaimed) {
-      const metaDiv = document.createElement('div');
-      metaDiv.className = 'product-meta';
-      metaDiv.textContent = '✓ Claimed by someone';
-      metaDiv.style.color = 'var(--text-tertiary)';
-      detailsDiv.appendChild(metaDiv);
-    }
-
+    // Price display (consistent styling with displayProducts)
     if (product.current_price) {
-      const priceDiv = document.createElement('div');
-      priceDiv.className = 'product-meta';
+      const priceContainer = document.createElement('div');
+      priceContainer.style.display = 'flex';
+      priceContainer.style.alignItems = 'center';
+      priceContainer.style.gap = '8px';
+      priceContainer.style.marginBottom = '4px';
+
+      const priceDiv = document.createElement('span');
+      priceDiv.className = 'product-meta product-price-display';
       priceDiv.style.fontWeight = '600';
+      priceDiv.style.fontSize = '14px';
       priceDiv.style.color = 'var(--green-primary)';
       priceDiv.textContent = `$${product.current_price}`;
-      detailsDiv.appendChild(priceDiv);
+      priceContainer.appendChild(priceDiv);
+
+      detailsDiv.appendChild(priceContainer);
+    }
+
+    // Claimed status badge (consistent styling)
+    if (isMine) {
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'product-meta claimed-status';
+      statusDiv.textContent = '✓ You claimed this';
+      detailsDiv.appendChild(statusDiv);
+    } else if (isClaimed) {
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'product-meta';
+      statusDiv.style.color = 'var(--text-tertiary)';
+      statusDiv.textContent = '✓ Claimed';
+      detailsDiv.appendChild(statusDiv);
     }
 
     if (product.url) {
@@ -307,21 +329,24 @@ export function displayHintlist(list, products) {
       detailsDiv.appendChild(urlDiv);
     }
 
+    // Actions (consistent icon buttons with displayProducts)
     const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'product-actions';
+    actionsDiv.className = 'product-actions show';
 
     if (product.url) {
       const visitBtn = document.createElement('button');
-      visitBtn.className = 'btn-small';
-      visitBtn.textContent = 'Visit';
+      visitBtn.className = 'btn-icon';
+      visitBtn.textContent = '🔗';
+      visitBtn.title = 'Visit page';
       visitBtn.addEventListener('click', () => window.open(product.url, '_blank'));
       actionsDiv.appendChild(visitBtn);
     }
 
     if (isMine) {
       const unclaimBtn = document.createElement('button');
-      unclaimBtn.className = 'btn-small danger';
-      unclaimBtn.textContent = 'Unclaim';
+      unclaimBtn.className = 'btn-icon secondary danger';
+      unclaimBtn.textContent = '↩️';
+      unclaimBtn.title = 'Unclaim item';
       unclaimBtn.addEventListener('click', async () => {
         if (!confirm('Unclaim this item?')) return;
         try {
@@ -339,8 +364,9 @@ export function displayHintlist(list, products) {
       actionsDiv.appendChild(unclaimBtn);
     } else if (!isClaimed) {
       const claimBtn = document.createElement('button');
-      claimBtn.className = 'btn-small';
-      claimBtn.textContent = "I'll buy this!";
+      claimBtn.className = 'btn-icon';
+      claimBtn.textContent = '🎁';
+      claimBtn.title = "I'll buy this!";
       claimBtn.addEventListener('click', async () => {
         if (!confirm('Claim this item?')) return;
         try {
