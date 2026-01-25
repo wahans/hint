@@ -1887,6 +1887,298 @@
     .toast.error {
       background: var(--danger-bg);
     }
+
+    /* ============================================
+       PHASE 3 ENHANCEMENTS: Visual Hierarchy
+       ============================================ */
+
+    /* Spacing utilities */
+    .stack-xs > * + * { margin-top: var(--space-1); }
+    .stack-sm > * + * { margin-top: var(--space-2); }
+    .stack-md > * + * { margin-top: var(--space-3); }
+    .stack-lg > * + * { margin-top: var(--space-4); }
+
+    .inline-xs { display: flex; gap: var(--space-1); align-items: center; }
+    .inline-sm { display: flex; gap: var(--space-2); align-items: center; }
+    .inline-md { display: flex; gap: var(--space-3); align-items: center; }
+
+    /* Visual dividers */
+    .divider {
+      height: 1px;
+      background: var(--border-light);
+      margin: var(--space-3) 0;
+    }
+
+    .divider-label {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      color: var(--text-tertiary);
+      font-size: var(--font-xs);
+      text-transform: uppercase;
+    }
+
+    .divider-label::before,
+    .divider-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-light);
+    }
+
+    /* Card elevation levels */
+    .card-flat {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+    }
+
+    .card-raised {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 2px 8px var(--shadow-light);
+    }
+
+    .card-elevated {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 16px var(--shadow-medium);
+    }
+
+    /* ============================================
+       PHASE 4 ENHANCEMENTS: Progressive Disclosure
+       ============================================ */
+
+    /* Tooltip system */
+    [data-tip] {
+      position: relative;
+      cursor: help;
+    }
+
+    [data-tip]::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%) scale(0.95);
+      padding: var(--space-2) var(--space-3);
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      font-size: var(--font-xs);
+      font-weight: var(--weight-medium);
+      white-space: nowrap;
+      border-radius: var(--radius-md);
+      opacity: 0;
+      pointer-events: none;
+      transition: all var(--transition-fast);
+      z-index: 1000;
+    }
+
+    [data-tip]:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+
+    /* Contextual help */
+    .help-text {
+      font-size: var(--font-xs);
+      color: var(--text-tertiary);
+      margin-top: var(--space-1);
+      line-height: var(--leading-relaxed);
+    }
+
+    /* Expandable details */
+    .expandable-summary {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) 0;
+      color: var(--text-secondary);
+      font-size: var(--font-sm);
+      cursor: pointer;
+      transition: color var(--transition-base);
+    }
+
+    .expandable-summary:hover {
+      color: var(--green-primary);
+    }
+
+    .expandable-summary .icon {
+      transition: transform var(--transition-base);
+    }
+
+    .expandable-summary[aria-expanded="true"] .icon {
+      transform: rotate(180deg);
+    }
+
+    /* Empty state styling */
+    .empty-state {
+      text-align: center;
+      padding: var(--space-8) var(--space-4);
+      color: var(--text-tertiary);
+    }
+
+    .empty-state-icon {
+      font-size: 32px;
+      margin-bottom: var(--space-3);
+      opacity: 0.6;
+    }
+
+    .empty-state-title {
+      font-size: var(--font-md);
+      font-weight: var(--weight-medium);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+    }
+
+    .empty-state-desc {
+      font-size: var(--font-sm);
+      margin-bottom: var(--space-4);
+    }
+
+    /* ============================================
+       PHASE 5 ENHANCEMENTS: Micro-interactions
+       ============================================ */
+
+    /* Button press effect */
+    button:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    /* Icon rotation */
+    .icon-rotate {
+      transition: transform var(--transition-base);
+    }
+
+    .icon-rotate.rotated {
+      transform: rotate(180deg);
+    }
+
+    /* Success checkmark animation */
+    @keyframes checkmark {
+      0% { stroke-dashoffset: 24; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .checkmark-animated {
+      stroke-dasharray: 24;
+      stroke-dashoffset: 24;
+      animation: checkmark 0.4s ease forwards;
+    }
+
+    /* Hover lift for cards */
+    .hover-lift {
+      transition: transform var(--transition-base), box-shadow var(--transition-base);
+    }
+
+    .hover-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow-medium);
+    }
+
+    /* Loading dots */
+    @keyframes loadingDots {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    .loading-dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .loading-dots span {
+      width: 6px;
+      height: 6px;
+      background: currentColor;
+      border-radius: 50%;
+      animation: loadingDots 1.4s ease-in-out infinite;
+    }
+
+    .loading-dots span:nth-child(2) { animation-delay: 0.16s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.32s; }
+
+    /* Badge enter animation */
+    @keyframes badgeEnter {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .badge-animated {
+      animation: badgeEnter 0.2s ease-out;
+    }
+
+    /* Staggered list animations */
+    .stagger-enter > * {
+      opacity: 0;
+      transform: translateY(8px);
+      animation: staggerFadeIn 0.3s ease forwards;
+    }
+
+    .stagger-enter > *:nth-child(1) { animation-delay: 0s; }
+    .stagger-enter > *:nth-child(2) { animation-delay: 0.05s; }
+    .stagger-enter > *:nth-child(3) { animation-delay: 0.1s; }
+    .stagger-enter > *:nth-child(4) { animation-delay: 0.15s; }
+    .stagger-enter > *:nth-child(5) { animation-delay: 0.2s; }
+
+    @keyframes staggerFadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================
+       PHASE 6 ENHANCEMENTS: Accessibility
+       (No body width changes - extension-safe)
+       ============================================ */
+
+    /* Reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .skeleton {
+        animation: none;
+        background: var(--bg-tertiary);
+      }
+    }
+
+    /* High contrast mode */
+    @media (prefers-contrast: high) {
+      :root {
+        --border-light: var(--border-color);
+        --text-tertiary: var(--text-secondary);
+      }
+
+      button, input, select {
+        border-width: 2px;
+      }
+    }
+
+    /* Smooth scrollbars */
+    .lists-container::-webkit-scrollbar,
+    .container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .lists-container::-webkit-scrollbar-track,
+    .container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .lists-container::-webkit-scrollbar-thumb,
+    .container::-webkit-scrollbar-thumb {
+      background: var(--text-tertiary);
+      border-radius: var(--radius-full);
+    }
+
+    .lists-container::-webkit-scrollbar-thumb:hover,
+    .container::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
   </style>
 </head>
 <body>
