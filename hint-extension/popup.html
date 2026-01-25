@@ -1607,6 +1607,83 @@
       }
     }
 
+    /* ============================================
+       PRICE HISTORY CHART ENHANCEMENTS
+       ============================================ */
+
+    /* Chart container */
+    #priceChartContainer {
+      position: relative;
+      overflow: visible;
+    }
+
+    /* Chart line hover effect */
+    #priceChartContainer svg polyline {
+      transition: stroke-width 0.2s ease;
+    }
+
+    #priceChartContainer:hover svg polyline {
+      stroke-width: 3;
+    }
+
+    /* Chart point interactions */
+    #priceChartContainer svg circle {
+      cursor: pointer;
+      transition: r 0.15s ease, fill 0.15s ease, transform 0.15s ease;
+    }
+
+    #priceChartContainer svg circle:hover {
+      fill: var(--green-dark);
+    }
+
+    /* Chart grid lines in dark mode */
+    [data-theme="dark"] #priceChartContainer svg line {
+      stroke: var(--border-light);
+    }
+
+    /* Chart gradient in dark mode */
+    [data-theme="dark"] #priceChartContainer svg stop[offset="0%"] {
+      stop-opacity: 0.25;
+    }
+
+    /* Tooltip styling override */
+    [data-theme="dark"] [class*="-tooltip"] {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    [data-theme="dark"] [class*="-tooltip"]::after {
+      border-top-color: var(--bg-elevated);
+    }
+
+    /* History filter buttons */
+    .history-filter {
+      flex: 1;
+      min-width: 0;
+      padding: 6px 8px !important;
+      font-size: 10px !important;
+      transition: all 0.15s ease;
+    }
+
+    .history-filter.active {
+      transform: scale(1.02);
+    }
+
+    .history-filter:hover:not(.active) {
+      background: var(--bg-hover) !important;
+    }
+
+    /* Price stats cards */
+    #priceStats > div {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    #priceStats > div:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px var(--shadow-medium);
+    }
+
     /* Price alert indicator styles */
     .price-alert-badge {
       display: inline-flex;

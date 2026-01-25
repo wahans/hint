@@ -389,7 +389,10 @@ function extractPriceFromPage() {
       const selectors = [
         '[automation-id="productPriceOutput"]',
         '.price-wrapper .price',
-        '#pull-right-price span[class*="value"]'
+        '#pull-right-price span[class*="value"]',
+        '.product-price span[class*="value"]',
+        '[data-testid="product-price"]',
+        '.your-price .value'
       ];
       for (const sel of selectors) {
         const el = document.querySelector(sel);
@@ -398,13 +401,35 @@ function extractPriceFromPage() {
           if (price) break;
         }
       }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              price = parseFloat(offers[0]?.price);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Out of Stock') &&
+                !document.body.innerText.includes('Sold Out') &&
+                !document.querySelector('[data-testid="out-of-stock"]');
     }
     // Nordstrom
     else if (url.includes('nordstrom.com')) {
       const selectors = [
         '[name="price"]',
         'span[itemprop="price"]',
-        '[class*="Price"] span[class*="current"]'
+        '[class*="Price"] span[class*="current"]',
+        '[data-element="sale-price"]',
+        '[class*="PriceInfo"] [class*="sale"]',
+        '[class*="CurrentPrice"]',
+        '.product-price__sale-price',
+        '[class*="product-price"] [class*="sale"]'
       ];
       for (const sel of selectors) {
         const el = document.querySelector(sel);
@@ -414,13 +439,36 @@ function extractPriceFromPage() {
           if (price) break;
         }
       }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              const offer = offers[0];
+              price = parseFloat(offer?.price || offer?.lowPrice);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Sold Out') &&
+                !document.body.innerText.includes('Out of Stock') &&
+                !document.querySelector('[data-element="sold-out"]');
     }
     // Macy's
     else if (url.includes('macys.com')) {
       const selectors = [
         '.price .lowest-sale-price',
         '[data-auto="product-price"] .lowest-sale-price',
-        '.price .discount'
+        '.price .discount',
+        '[data-auto="product-price"] .sale-price',
+        '.c-price [class*="sale"]',
+        '.price-info .now-price',
+        '[class*="PriceRange"] [class*="sale"]',
+        '.c-price__now'
       ];
       for (const sel of selectors) {
         const el = document.querySelector(sel);
@@ -429,13 +477,35 @@ function extractPriceFromPage() {
           if (price) break;
         }
       }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              price = parseFloat(offers[0]?.price || offers[0]?.lowPrice);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Out of Stock') &&
+                !document.body.innerText.includes('Sold Out') &&
+                !document.querySelector('[data-auto="sold-out"]');
     }
     // Kohl's
     else if (url.includes('kohls.com')) {
       const selectors = [
         '.prod_price_amount',
         '[class*="sale-price"]',
-        '.pdpPage-price .sale'
+        '.pdpPage-price .sale',
+        '[data-testid="product-price"] .sale',
+        '.price-info [class*="sale"]',
+        '[class*="ProductPrice"] [class*="sale"]',
+        '.product-price .current-price',
+        '[class*="finalPrice"]'
       ];
       for (const sel of selectors) {
         const el = document.querySelector(sel);
@@ -444,13 +514,35 @@ function extractPriceFromPage() {
           if (price) break;
         }
       }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              price = parseFloat(offers[0]?.price || offers[0]?.lowPrice);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Out of Stock') &&
+                !document.body.innerText.includes('Sold Out') &&
+                !document.querySelector('[data-testid="out-of-stock"]');
     }
     // REI
     else if (url.includes('rei.com')) {
       const selectors = [
         '[data-ui="sale-price"]',
         '.price-value',
-        '#buy-box-product-price'
+        '#buy-box-product-price',
+        '[class*="SalePrice"]',
+        '.product-price [class*="sale"]',
+        '[data-testid="product-price"] .sale',
+        '.price-show-now',
+        '[class*="productPrice"] [class*="current"]'
       ];
       for (const sel of selectors) {
         const el = document.querySelector(sel);
@@ -459,27 +551,108 @@ function extractPriceFromPage() {
           if (price) break;
         }
       }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              price = parseFloat(offers[0]?.price || offers[0]?.lowPrice);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Out of Stock') &&
+                !document.body.innerText.includes('Sold Out') &&
+                !document.querySelector('[data-ui="out-of-stock"]');
     }
     // Crate & Barrel
     else if (url.includes('crateandbarrel.com')) {
-      const el = document.querySelector('.price-current, [data-testid="price-current"]');
-      if (el && !isStrikethrough(el)) {
-        price = parseSinglePrice(el.textContent);
+      const selectors = [
+        '.price-current',
+        '[data-testid="price-current"]',
+        '.product-price [class*="sale"]',
+        '[class*="ProductPrice"] [class*="current"]',
+        '.price-info .now-price',
+        '[class*="pdp-price"] [class*="sale"]',
+        '.product-price__now',
+        '[itemprop="price"]'
+      ];
+      for (const sel of selectors) {
+        const el = document.querySelector(sel);
+        if (el && !isStrikethrough(el)) {
+          const content = el.getAttribute('content');
+          price = content ? parseFloat(content) : parseSinglePrice(el.textContent);
+          if (price) break;
+        }
       }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              price = parseFloat(offers[0]?.price || offers[0]?.lowPrice);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Out of Stock') &&
+                !document.body.innerText.includes('Sold Out');
     }
     // Pottery Barn
     else if (url.includes('potterybarn.com')) {
-      const el = document.querySelector('.price-state--current .price-amount');
-      if (el && !isStrikethrough(el)) {
-        price = parseSinglePrice(el.textContent);
+      const selectors = [
+        '.price-state--current .price-amount',
+        '[class*="SalePrice"]',
+        '.product-price [class*="current"]',
+        '[data-testid="price-current"]',
+        '.price-info [class*="sale"]',
+        '.pdp-price [class*="now"]',
+        '[itemprop="price"]',
+        '[class*="ProductPrice"] .sale'
+      ];
+      for (const sel of selectors) {
+        const el = document.querySelector(sel);
+        if (el && !isStrikethrough(el)) {
+          const content = el.getAttribute('content');
+          price = content ? parseFloat(content) : parseSinglePrice(el.textContent);
+          if (price) break;
+        }
       }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              price = parseFloat(offers[0]?.price || offers[0]?.lowPrice);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Out of Stock') &&
+                !document.body.innerText.includes('Sold Out');
     }
     // Nike
     else if (url.includes('nike.com')) {
       const selectors = [
         '[data-test="product-price"]',
         '.product-price',
-        '[class*="productPrice"] [class*="currentPrice"]'
+        '[class*="productPrice"] [class*="currentPrice"]',
+        '[data-test="product-price-reduced"]',
+        '[class*="ProductPrice"] [class*="sale"]',
+        '.headline-5[class*="price"]',
+        '[class*="price-container"] [class*="current"]'
       ];
       for (const sel of selectors) {
         const el = document.querySelector(sel);
@@ -488,13 +661,61 @@ function extractPriceFromPage() {
           if (price) break;
         }
       }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              price = parseFloat(offers[0]?.price || offers[0]?.lowPrice);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Sold Out') &&
+                !document.body.innerText.includes('Currently Unavailable') &&
+                !document.querySelector('[data-test="sold-out"]');
     }
     // Adidas
     else if (url.includes('adidas.com')) {
-      const el = document.querySelector('[data-testid="product-price"], .gl-price-item');
-      if (el && !isStrikethrough(el)) {
-        price = parseSinglePrice(el.textContent);
+      const selectors = [
+        '[data-testid="product-price"]',
+        '.gl-price-item',
+        '[class*="ProductPrice"] [class*="sale"]',
+        '.product-price [class*="current"]',
+        '[data-auto-id="product-price"]',
+        '.price-info [class*="now"]',
+        '[class*="gl-price"] [class*="sale"]',
+        '[itemprop="price"]'
+      ];
+      for (const sel of selectors) {
+        const el = document.querySelector(sel);
+        if (el && !isStrikethrough(el)) {
+          const content = el.getAttribute('content');
+          price = content ? parseFloat(content) : parseSinglePrice(el.textContent);
+          if (price) break;
+        }
       }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              price = parseFloat(offers[0]?.price || offers[0]?.lowPrice);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Sold Out') &&
+                !document.body.innerText.includes('Out of Stock') &&
+                !document.querySelector('[data-testid="out-of-stock"]');
     }
     // Hanes - sale price is in the main product area only
     else if (url.includes('hanes.com')) {
@@ -558,22 +779,64 @@ function extractPriceFromPage() {
     }
     // Patagonia
     else if (url.includes('patagonia.com')) {
-      const salePrice = document.querySelector('.price--sale, .sales-price');
-      if (salePrice) {
-        price = parseSinglePrice(salePrice.textContent);
-      }
-      if (!price) {
-        const priceEl = document.querySelector('.price');
-        if (priceEl && !isStrikethrough(priceEl)) {
-          price = parseSinglePrice(priceEl.textContent);
+      const selectors = [
+        '.price--sale',
+        '.sales-price',
+        '[class*="SalePrice"]',
+        '.product-price [class*="current"]',
+        '[data-testid="price-sale"]',
+        '.price-info [class*="now"]'
+      ];
+      for (const sel of selectors) {
+        const el = document.querySelector(sel);
+        if (el && !isStrikethrough(el)) {
+          price = parseSinglePrice(el.textContent);
+          if (price) break;
         }
       }
+      if (!price) {
+        const priceEl = document.querySelector('.price, [itemprop="price"]');
+        if (priceEl && !isStrikethrough(priceEl)) {
+          const content = priceEl.getAttribute('content');
+          price = content ? parseFloat(content) : parseSinglePrice(priceEl.textContent);
+        }
+      }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              price = parseFloat(offers[0]?.price || offers[0]?.lowPrice);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Out of Stock') &&
+                !document.body.innerText.includes('Sold Out') &&
+                !document.querySelector('[data-testid="out-of-stock"]');
     }
     // Williams Sonoma
     else if (url.includes('williams-sonoma.com')) {
-      const salePrice = document.querySelector('.product-price .sale-price, .price-sale');
-      if (salePrice) {
-        price = parseSinglePrice(salePrice.textContent);
+      const selectors = [
+        '.product-price .sale-price',
+        '.price-sale',
+        '[class*="SalePrice"]',
+        '.product-price [class*="current"]',
+        '[data-testid="price-sale"]',
+        '.price-info [class*="now"]',
+        '[itemprop="price"]'
+      ];
+      for (const sel of selectors) {
+        const el = document.querySelector(sel);
+        if (el && !isStrikethrough(el)) {
+          const content = el.getAttribute('content');
+          price = content ? parseFloat(content) : parseSinglePrice(el.textContent);
+          if (price) break;
+        }
       }
       if (!price) {
         const priceEl = document.querySelector('.product-price');
@@ -581,6 +844,22 @@ function extractPriceFromPage() {
           price = parseSinglePrice(priceEl.textContent);
         }
       }
+      // JSON-LD fallback
+      if (!price) {
+        const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (const script of scripts) {
+          try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type'] === 'Product' && data.offers) {
+              const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+              price = parseFloat(offers[0]?.price || offers[0]?.lowPrice);
+              if (price) break;
+            }
+          } catch (e) {}
+        }
+      }
+      inStock = !document.body.innerText.includes('Out of Stock') &&
+                !document.body.innerText.includes('Sold Out');
     }
     // Generic fallback - comprehensive extraction
     else {

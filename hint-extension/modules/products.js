@@ -518,7 +518,7 @@ async function filterPriceHistory(days) {
   }
 }
 
-// Draw a simple price chart
+// Draw an enhanced price chart with tooltips, grid, and animations
 function drawPriceChart(history, container) {
   const prices = history.map(h => parseFloat(h.price)).reverse();
   const dates = history.map(h => new Date(h.recorded_at)).reverse();
@@ -533,41 +533,216 @@ function drawPriceChart(history, container) {
     return;
   }
 
-  const minPrice = Math.min(...prices) * 0.95;
-  const maxPrice = Math.max(...prices) * 1.05;
-  const range = maxPrice - minPrice || 1;
+  // Chart dimensions with padding for Y-axis labels
+  const yAxisWidth = 45;
+  const totalWidth = container.clientWidth - 16;
+  const width = totalWidth - yAxisWidth;
+  const height = 140;
+  const padding = { top: 10, bottom: 25 };
+  const chartHeight = height - padding.top - padding.bottom;
 
-  const width = container.clientWidth - 32;
-  const height = 160;
+  // Calculate price range with buffer
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+  const priceBuffer = (maxPrice - minPrice) * 0.1 || maxPrice * 0.05;
+  const yMin = Math.max(0, minPrice - priceBuffer);
+  const yMax = maxPrice + priceBuffer;
+  const range = yMax - yMin || 1;
 
-  // Create SVG chart
-  const points = prices.map((price, i) => {
-    const x = (i / (prices.length - 1)) * width;
-    const y = height - ((price - minPrice) / range) * height;
-    return `${x},${y}`;
-  }).join(' ');
+  // Calculate nice Y-axis tick values
+  const numTicks = 4;
+  const tickStep = range / (numTicks - 1);
+  const yTicks = [];
+  for (let i = 0; i < numTicks; i++) {
+    yTicks.push(yMin + tickStep * i);
+  }
+
+  // Create data points
+  const dataPoints = prices.map((price, i) => {
+    const x = yAxisWidth + (i / (prices.length - 1)) * width;
+    const y = padding.top + chartHeight - ((price - yMin) / range) * chartHeight;
+    return { x, y, price, date: dates[i] };
+  });
+
+  // Build polyline points string
+  const linePoints = dataPoints.map(p => `${p.x},${p.y}`).join(' ');
+
+  // Build polygon points for gradient fill
+  const fillPoints = `${yAxisWidth},${padding.top + chartHeight} ${linePoints} ${yAxisWidth + width},${padding.top + chartHeight}`;
+
+  // Calculate total line length for animation
+  let totalLength = 0;
+  for (let i = 1; i < dataPoints.length; i++) {
+    const dx = dataPoints[i].x - dataPoints[i-1].x;
+    const dy = dataPoints[i].y - dataPoints[i-1].y;
+    totalLength += Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // Format dates for X-axis
+  const formatDate = (d) => {
+    const month = d.toLocaleDateString('en-US', { month: 'short' });
+    const day = d.getDate();
+    return `${month} ${day}`;
+  };
+
+  // Build SVG
+  const uniqueId = `chart-${Date.now()}`;
 
   container.innerHTML = `
-    <svg width="${width}" height="${height}" style="overflow: visible;">
-      <defs>
-        <linearGradient id="priceGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style="stop-color: var(--green-primary); stop-opacity: 0.3"/>
-          <stop offset="100%" style="stop-color: var(--green-primary); stop-opacity: 0"/>
-        </linearGradient>
-      </defs>
-      <polygon points="0,${height} ${points} ${width},${height}" fill="url(#priceGradient)"/>
-      <polyline points="${points}" fill="none" stroke="var(--green-primary)" stroke-width="2"/>
-      ${prices.map((price, i) => {
-        const x = (i / (prices.length - 1)) * width;
-        const y = height - ((price - minPrice) / range) * height;
-        return `<circle cx="${x}" cy="${y}" r="4" fill="var(--green-primary)" stroke="white" stroke-width="2"/>`;
-      }).join('')}
-    </svg>
-    <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; color: var(--text-secondary);">
-      <span>${dates[0].toLocaleDateString()}</span>
-      <span>${dates[dates.length - 1].toLocaleDateString()}</span>
+    <style>
+      @keyframes ${uniqueId}-drawLine {
+        to { stroke-dashoffset: 0; }
+      }
+      @keyframes ${uniqueId}-fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes ${uniqueId}-pointPop {
+        0% { transform: scale(0); opacity: 0; }
+        70% { transform: scale(1.2); }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .${uniqueId}-point {
+        cursor: pointer;
+        transition: r 0.15s ease, fill 0.15s ease;
+      }
+      .${uniqueId}-point:hover {
+        r: 6;
+        fill: var(--green-dark);
+      }
+      .${uniqueId}-tooltip {
+        position: absolute;
+        background: var(--text-primary);
+        color: var(--bg-secondary);
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
+        pointer-events: none;
+        opacity: 0;
+        transform: translateX(-50%) translateY(-8px);
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        white-space: nowrap;
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      }
+      .${uniqueId}-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: var(--text-primary);
+      }
+      .${uniqueId}-tooltip.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-12px);
+      }
+    </style>
+    <div style="position: relative;">
+      <svg width="${totalWidth}" height="${height}" style="overflow: visible;">
+        <defs>
+          <linearGradient id="${uniqueId}-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color: var(--green-primary); stop-opacity: 0.35"/>
+            <stop offset="50%" style="stop-color: var(--green-primary); stop-opacity: 0.15"/>
+            <stop offset="100%" style="stop-color: var(--green-primary); stop-opacity: 0.02"/>
+          </linearGradient>
+          <filter id="${uniqueId}-glow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- Y-axis labels -->
+        ${yTicks.map((tick, i) => {
+          const y = padding.top + chartHeight - ((tick - yMin) / range) * chartHeight;
+          return `
+            <text x="${yAxisWidth - 8}" y="${y + 3}"
+                  text-anchor="end"
+                  fill="var(--text-tertiary)"
+                  font-size="9"
+                  font-family="-apple-system, BlinkMacSystemFont, sans-serif">
+              $${tick.toFixed(tick >= 100 ? 0 : 2)}
+            </text>
+          `;
+        }).join('')}
+
+        <!-- Grid lines -->
+        ${yTicks.map((tick, i) => {
+          const y = padding.top + chartHeight - ((tick - yMin) / range) * chartHeight;
+          return `
+            <line x1="${yAxisWidth}" y1="${y}" x2="${yAxisWidth + width}" y2="${y}"
+                  stroke="var(--border-light)"
+                  stroke-dasharray="3,3"
+                  stroke-width="1"/>
+          `;
+        }).join('')}
+
+        <!-- Area fill with animation -->
+        <polygon
+          points="${fillPoints}"
+          fill="url(#${uniqueId}-gradient)"
+          style="animation: ${uniqueId}-fadeIn 0.6s ease-out 0.3s both;"/>
+
+        <!-- Line with draw animation -->
+        <polyline
+          points="${linePoints}"
+          fill="none"
+          stroke="var(--green-primary)"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          filter="url(#${uniqueId}-glow)"
+          style="stroke-dasharray: ${totalLength}; stroke-dashoffset: ${totalLength}; animation: ${uniqueId}-drawLine 1s ease-out forwards;"/>
+
+        <!-- Data points -->
+        ${dataPoints.map((point, i) => `
+          <circle
+            class="${uniqueId}-point"
+            cx="${point.x}"
+            cy="${point.y}"
+            r="4"
+            fill="var(--green-primary)"
+            stroke="white"
+            stroke-width="2"
+            data-index="${i}"
+            style="transform-origin: ${point.x}px ${point.y}px; animation: ${uniqueId}-pointPop 0.3s ease-out ${0.8 + i * 0.05}s both;"/>
+        `).join('')}
+      </svg>
+
+      <!-- Tooltip -->
+      <div class="${uniqueId}-tooltip" id="${uniqueId}-tooltip"></div>
+
+      <!-- X-axis labels -->
+      <div style="display: flex; justify-content: space-between; margin-top: 4px; margin-left: ${yAxisWidth}px; font-size: 9px; color: var(--text-tertiary);">
+        <span>${formatDate(dates[0])}</span>
+        ${dates.length > 2 ? `<span>${formatDate(dates[Math.floor(dates.length / 2)])}</span>` : ''}
+        <span>${formatDate(dates[dates.length - 1])}</span>
+      </div>
     </div>
   `;
+
+  // Add tooltip interactivity
+  const tooltip = document.getElementById(`${uniqueId}-tooltip`);
+  const points = container.querySelectorAll(`.${uniqueId}-point`);
+
+  points.forEach((point, i) => {
+    point.addEventListener('mouseenter', () => {
+      const dp = dataPoints[i];
+      tooltip.innerHTML = `<strong>$${dp.price.toFixed(2)}</strong><br>${formatDate(dp.date)}`;
+      tooltip.style.left = `${dp.x}px`;
+      tooltip.style.top = `${dp.y - 4}px`;
+      tooltip.classList.add('show');
+    });
+
+    point.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('show');
+    });
+  });
 }
 
 // Show price drop alert notification
