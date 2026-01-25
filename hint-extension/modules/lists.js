@@ -135,46 +135,39 @@ export function displayMyLists() {
       listDiv.appendChild(dateLineDiv);
     }
 
-    // List actions
+    // List actions - consolidated UI
     const actionsDiv = document.createElement('div');
-    actionsDiv.style.marginTop = '8px';
-    actionsDiv.style.display = 'flex';
-    actionsDiv.style.gap = '6px';
-    actionsDiv.style.flexWrap = 'wrap';
-    actionsDiv.style.alignItems = 'center';
+    actionsDiv.className = 'list-actions-row';
 
-    // Expand/Collapse button
+    // Expand/Collapse button (primary)
     const expandBtn = document.createElement('button');
-    expandBtn.className = 'btn-icon secondary';
-    expandBtn.textContent = state.expandedLists.has(list.id) ? '▼' : '▶';
-    expandBtn.setAttribute('data-tooltip', state.expandedLists.has(list.id) ? 'Hide items' : 'Show items');
+    expandBtn.className = 'btn-small secondary';
+    expandBtn.innerHTML = state.expandedLists.has(list.id) ? '▼ Hide' : '▶ Show';
     expandBtn.id = `expand-${list.id}`;
+    expandBtn.setAttribute('aria-label', state.expandedLists.has(list.id) ? 'Hide items' : 'Show items');
     actionsDiv.appendChild(expandBtn);
 
-    // Share button (for public lists)
+    // Share button (primary, for public lists)
     if (list.is_public) {
       const shareBtn = document.createElement('button');
-      shareBtn.className = 'btn-icon';
-      shareBtn.textContent = '📤';
-      shareBtn.setAttribute('data-tooltip', 'Share list');
+      shareBtn.className = 'btn-small';
+      shareBtn.innerHTML = '📤 Share';
+      shareBtn.setAttribute('aria-label', 'Share list');
       shareBtn.addEventListener('click', () => openInviteModal(list));
       actionsDiv.appendChild(shareBtn);
     }
 
-    // Export button
-    const exportBtn = document.createElement('button');
-    exportBtn.className = 'btn-icon secondary';
-    exportBtn.textContent = '📥';
-    exportBtn.setAttribute('data-tooltip', 'Export to Excel');
-    exportBtn.addEventListener('click', () => exportListToExcel(list, products));
-    actionsDiv.appendChild(exportBtn);
+    // Spacer
+    const spacer = document.createElement('div');
+    spacer.style.flex = '1';
+    actionsDiv.appendChild(spacer);
 
-    // More options dropdown
+    // More options dropdown (contains rename, delete, export, settings)
     const moreBtn = document.createElement('button');
-    moreBtn.className = 'btn-icon secondary';
-    moreBtn.textContent = '⋮';
-    moreBtn.setAttribute('data-tooltip', 'More options');
-    moreBtn.style.position = 'relative';
+    moreBtn.className = 'btn-more';
+    moreBtn.textContent = '⋯';
+    moreBtn.setAttribute('aria-label', 'More options');
+    moreBtn.title = 'More options';
 
     const dropdownId = `dropdown-${list.id}`;
     moreBtn.addEventListener('click', (e) => {
@@ -196,23 +189,24 @@ export function displayMyLists() {
       const notificationLevel = list.notification_level || 'none';
 
       let dropdownHTML = `
-        <button class="dropdown-item" data-action="toggle">${list.is_public ? '🔒 Make Private' : '🌍 Make Public'}</button>
-        <button class="dropdown-item" data-action="rename">✏️ Rename</button>
-        <button class="dropdown-item" data-action="date">📅 ${list.key_date ? 'Edit Date' : 'Set Date'}</button>`;
+        <button class="dropdown-menu-item" data-action="rename"><span class="icon">✏️</span> Rename</button>
+        <button class="dropdown-menu-item" data-action="date"><span class="icon">📅</span> ${list.key_date ? 'Edit Date' : 'Set Date'}</button>
+        <button class="dropdown-menu-item" data-action="toggle"><span class="icon">${list.is_public ? '🔒' : '🌍'}</span> ${list.is_public ? 'Make Private' : 'Make Public'}</button>
+        <button class="dropdown-menu-item" data-action="export"><span class="icon">📥</span> Export CSV</button>`;
 
       if (list.is_public) {
         dropdownHTML += `
         <div class="dropdown-divider"></div>
-        <div style="padding: 6px 16px; font-size: 11px; color: var(--text-secondary); font-weight: 600;">NOTIFICATIONS</div>
-        <button class="dropdown-item" data-action="notify-none" style="${notificationLevel === 'none' ? 'background: var(--green-light);' : ''}">🔕 None</button>
-        <button class="dropdown-item" data-action="notify-who" style="${notificationLevel === 'who_only' ? 'background: var(--green-light);' : ''}">👤 Who claimed</button>
-        <button class="dropdown-item" data-action="notify-what" style="${notificationLevel === 'what_only' ? 'background: var(--green-light);' : ''}">🎁 What was claimed</button>
-        <button class="dropdown-item" data-action="notify-both" style="${notificationLevel === 'both' ? 'background: var(--green-light);' : ''}">🔔 Both</button>`;
+        <div style="padding: 6px 16px; font-size: 10px; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase;">Notifications</div>
+        <button class="dropdown-menu-item" data-action="notify-none" style="${notificationLevel === 'none' ? 'background: var(--green-light);' : ''}"><span class="icon">🔕</span> None</button>
+        <button class="dropdown-menu-item" data-action="notify-who" style="${notificationLevel === 'who_only' ? 'background: var(--green-light);' : ''}"><span class="icon">👤</span> Who claimed</button>
+        <button class="dropdown-menu-item" data-action="notify-what" style="${notificationLevel === 'what_only' ? 'background: var(--green-light);' : ''}"><span class="icon">🎁</span> What claimed</button>
+        <button class="dropdown-menu-item" data-action="notify-both" style="${notificationLevel === 'both' ? 'background: var(--green-light);' : ''}"><span class="icon">🔔</span> Both</button>`;
       }
 
       dropdownHTML += `
         <div class="dropdown-divider"></div>
-        <button class="dropdown-item danger" data-action="delete">🗑️ Delete List</button>
+        <button class="dropdown-menu-item danger" data-action="delete"><span class="icon">🗑️</span> Delete List</button>
       `;
       dropdown.innerHTML = dropdownHTML;
 
@@ -241,14 +235,17 @@ export function displayMyLists() {
 
           const action = item.dataset.action;
           switch (action) {
-            case 'toggle':
-              await toggleListPublic(list.id, !list.is_public);
-              break;
             case 'rename':
               renameList(list.id, list.name);
               break;
             case 'date':
               setKeyDate(list.id, list.name, list.key_date);
+              break;
+            case 'toggle':
+              await toggleListPublic(list.id, !list.is_public);
+              break;
+            case 'export':
+              exportListToExcel(list, products);
               break;
             case 'delete':
               deleteList(list.id, list.name);
@@ -300,7 +297,8 @@ export function displayMyLists() {
     // Add expand/collapse click handler
     expandBtn.addEventListener('click', () => {
       const isExpanded = listDiv.classList.toggle('expanded');
-      expandBtn.textContent = isExpanded ? '▼' : '▶';
+      expandBtn.innerHTML = isExpanded ? '▼ Hide' : '▶ Show';
+      expandBtn.setAttribute('aria-label', isExpanded ? 'Hide items' : 'Show items');
 
       if (isExpanded) {
         state.expandedLists.add(list.id);

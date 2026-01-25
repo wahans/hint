@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await auth.loadTheme();
   await auth.loadConfig();
   setupEventListeners();
+  ui.initDropdowns();
 });
 
 function setupEventListeners() {
@@ -103,24 +104,33 @@ function setupEventListeners() {
     });
   }
 
-  // Refresh buttons
+  // Refresh buttons with loading state
   const refreshBtn = document.getElementById('refreshListsBtn');
   if (refreshBtn) {
     refreshBtn.addEventListener('click', async () => {
-      ui.showMessage('addMessage', 'Refreshing...', 'info');
+      ui.setRefreshLoading(refreshBtn, true);
       await lists.loadUserData();
-      ui.showMessage('addMessage', 'Lists refreshed!', 'success');
+      ui.setRefreshLoading(refreshBtn, false);
+      ui.showToast('Lists refreshed!', 'success', 2000);
     });
   }
 
   const refreshClaimsBtn = document.getElementById('refreshClaimsBtn');
   if (refreshClaimsBtn) {
-    refreshClaimsBtn.addEventListener('click', claims.loadMyClaims);
+    refreshClaimsBtn.addEventListener('click', async () => {
+      ui.setRefreshLoading(refreshClaimsBtn, true);
+      await claims.loadMyClaims();
+      ui.setRefreshLoading(refreshClaimsBtn, false);
+    });
   }
 
   const refreshFriendsBtn = document.getElementById('refreshFriendsBtn');
   if (refreshFriendsBtn) {
-    refreshFriendsBtn.addEventListener('click', friends.loadBrowseFriends);
+    refreshFriendsBtn.addEventListener('click', async () => {
+      ui.setRefreshLoading(refreshFriendsBtn, true);
+      await friends.loadBrowseFriends();
+      ui.setRefreshLoading(refreshFriendsBtn, false);
+    });
   }
 
   // Clear recent friends

@@ -168,3 +168,42 @@ export function hideAllSections() {
   document.getElementById('signupSection').classList.add('hidden');
   document.getElementById('appSection').classList.add('hidden');
 }
+
+// Initialize dropdown menu functionality
+export function initDropdowns() {
+  // Close all dropdowns when clicking outside
+  document.addEventListener('click', (e) => {
+    const dropdowns = document.querySelectorAll('.dropdown-container.open');
+    dropdowns.forEach(dropdown => {
+      if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove('open');
+      }
+    });
+  });
+
+  // Toggle dropdown on button click
+  document.querySelectorAll('.dropdown-container').forEach(container => {
+    const trigger = container.querySelector('.btn-more');
+    if (trigger) {
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Close other dropdowns
+        document.querySelectorAll('.dropdown-container.open').forEach(d => {
+          if (d !== container) d.classList.remove('open');
+        });
+        container.classList.toggle('open');
+      });
+    }
+  });
+}
+
+// Set refresh button loading state
+export function setRefreshLoading(button, loading) {
+  if (loading) {
+    button.classList.add('loading');
+    button.disabled = true;
+  } else {
+    button.classList.remove('loading');
+    button.disabled = false;
+  }
+}
