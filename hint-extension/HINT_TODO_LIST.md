@@ -40,35 +40,22 @@
 
 ## 🚧 HIGH PRIORITY ITEMS
 
-### 1. Non-User Web Viewer Updates 🔗
-**Status:** Needs updates  
-**Time Estimate:** 2 hours  
-**Priority:** HIGH ⭐⭐⭐
+### ~~1. Non-User Web Viewer Updates 🔗~~ ✅ COMPLETE
+**Status:** Complete (January 24, 2026)
+**Solution:** Created RPC functions to bypass RLS for anonymous access
 
-**Current Issues:**
-- Web viewer at https://wahans.github.io/hint/ has outdated purple branding
-- Access codes not working properly
-- Logo not using Leckerli One font
-- Still uses "wishlist" terminology instead of "hintlist"
+**Completed:**
+- [x] Green branding (#228855) already in place
+- [x] Leckerli One font already loaded
+- [x] "hintlist" terminology already used
+- [x] Fixed access code validation via `get_public_hintlist` RPC
+- [x] Fixed guest claiming via `guest_claim_product` RPC
+- [x] Proper error messages for invalid codes
+- [x] Mobile responsive design working
 
-**Required Fixes:**
-- [ ] Update all colors from purple to green (#228855)
-- [ ] Change logo font to Leckerli One
-- [ ] Fix access code validation and database queries
-- [ ] Update all "wishlist" → "hintlist" terminology
-- [ ] Add proper error messages for invalid codes
-- [ ] Test complete guest claiming flow end-to-end
-- [ ] Ensure mobile responsiveness
-- [ ] Update footer/header styling to match extension
-
-**Files Affected:**
-- `index.html` (standalone web viewer on GitHub Pages)
-- May need to check Supabase RLS policies for public hintlist access
-
-**Technical Details:**
-- Web viewer allows non-users to view public hintlists via access code
-- Users can claim items as guests (provide name + email)
-- Critical for viral growth - friends/family don't need extension installed
+**Files Changed:**
+- `hint-gh-pages/index.html` - Updated to use RPC functions
+- `hint-extension/supabase-public-hintlist.sql` - New RPC functions
 
 ---
 

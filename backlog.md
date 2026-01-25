@@ -22,6 +22,13 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 
 ---
 
+## Gift Ideas (Courtney)
+
+- [ ] **Allbirds Women's Varsity shoes** - https://www.allbirds.com/products/womens-varsity
+  - Source: braindump (2026-01-18)
+
+---
+
 ## New Ideas
 
 ### Leaderboard & Gamification System
@@ -96,7 +103,7 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 - [ ] Privacy implications of activity feed - how much to show?
 
 ### Technical Debt
-- [ ] Consolidate popup.js (5,528 lines) into smaller modules?
+- [x] ~~Consolidate popup.js (5,528 lines) into smaller modules?~~ - Done! 11 ES modules (Jan 24, 2026)
 - [ ] TypeScript migration for remaining JS files?
 - [ ] Remove legacy `dnu/` folder contents entirely?
 
@@ -110,12 +117,12 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 ## Bugs
 
 ### High Priority
-- [ ] **Web viewer access codes not validating** - https://wahans.github.io/hint/ access codes fail silently
-- [ ] **Web viewer still purple branding** - Should be green (#228855), currently shows legacy purple theme
-- [ ] **Web viewer "wishlist" terminology** - Needs update to "hintlist" throughout
+- [x] ~~**Web viewer access codes not validating**~~ - Fixed via RPC functions (Jan 24, 2026)
+- [x] ~~**Web viewer still purple branding**~~ - Already green, was a stale issue
+- [x] ~~**Web viewer "wishlist" terminology**~~ - Already uses "hintlist"
 
 ### Medium Priority
-- [ ] **Logo font inconsistent** - Web viewer missing Leckerli One font for logo
+- [x] ~~**Logo font inconsistent**~~ - Leckerli One already loaded
 - [ ] **Mobile app friends API not connected** - FriendsListsScreen shows TODO for API integration
 - [ ] **Leaderboard using mock data** - LeaderboardScreen not connected to actual user_stats
 
