@@ -165,7 +165,11 @@ export function displayMyLists() {
     spacer.style.flex = '1';
     actionsDiv.appendChild(spacer);
 
-    // Inline action icons (directly clickable)
+    // Action icons container - fixed order for alignment
+    const iconsContainer = document.createElement('div');
+    iconsContainer.className = 'list-action-icons';
+
+    // Share (only for public lists)
     if (list.is_public) {
       const shareBtn = document.createElement('button');
       shareBtn.className = 'btn-action-icon';
@@ -173,25 +177,28 @@ export function displayMyLists() {
       shareBtn.setAttribute('aria-label', 'Share list');
       shareBtn.title = 'Share';
       shareBtn.addEventListener('click', () => openInviteModal(list));
-      actionsDiv.appendChild(shareBtn);
+      iconsContainer.appendChild(shareBtn);
     }
 
+    // Rename
     const renameBtn = document.createElement('button');
     renameBtn.className = 'btn-action-icon';
     renameBtn.innerHTML = '✏️';
     renameBtn.setAttribute('aria-label', 'Rename list');
     renameBtn.title = 'Rename';
     renameBtn.addEventListener('click', () => renameList(list.id, list.name));
-    actionsDiv.appendChild(renameBtn);
+    iconsContainer.appendChild(renameBtn);
 
+    // Date
     const dateBtn = document.createElement('button');
     dateBtn.className = 'btn-action-icon';
     dateBtn.innerHTML = '📅';
     dateBtn.setAttribute('aria-label', list.key_date ? 'Edit date' : 'Set date');
     dateBtn.title = list.key_date ? 'Edit date' : 'Set date';
     dateBtn.addEventListener('click', () => setKeyDate(list.id, list.name, list.key_date));
-    actionsDiv.appendChild(dateBtn);
+    iconsContainer.appendChild(dateBtn);
 
+    // Public/Private toggle
     const toggleBtn = document.createElement('button');
     toggleBtn.className = 'btn-action-icon';
     toggleBtn.innerHTML = list.is_public ? '🔒' : '🌍';
@@ -200,24 +207,27 @@ export function displayMyLists() {
     toggleBtn.addEventListener('click', async () => {
       await toggleListPublic(list.id, !list.is_public);
     });
-    actionsDiv.appendChild(toggleBtn);
+    iconsContainer.appendChild(toggleBtn);
 
+    // Export
     const exportBtn = document.createElement('button');
     exportBtn.className = 'btn-action-icon';
     exportBtn.innerHTML = '📥';
     exportBtn.setAttribute('aria-label', 'Export CSV');
     exportBtn.title = 'Export CSV';
     exportBtn.addEventListener('click', () => exportListToExcel(list, products));
-    actionsDiv.appendChild(exportBtn);
+    iconsContainer.appendChild(exportBtn);
 
+    // Delete
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-action-icon danger';
     deleteBtn.innerHTML = '🗑️';
     deleteBtn.setAttribute('aria-label', 'Delete list');
     deleteBtn.title = 'Delete';
     deleteBtn.addEventListener('click', () => deleteList(list.id, list.name));
-    actionsDiv.appendChild(deleteBtn);
+    iconsContainer.appendChild(deleteBtn);
 
+    actionsDiv.appendChild(iconsContainer);
     listDiv.appendChild(actionsDiv);
 
     // Products container (collapsible)
