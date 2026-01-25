@@ -2,7 +2,7 @@
 
 A comprehensive tracking document for the Hint gift-sharing platform across Chrome extension, mobile app, and web viewer. Use this document to track ideas, bugs, questions, and completed work. Update regularly during development sessions.
 
-**Last Updated:** January 12, 2026
+**Last Updated:** January 24, 2026
 **MVP Status:** 95% Complete (~60+ hours development)
 **Current Phase:** Polishing & Enhancement
 
@@ -127,9 +127,9 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 - [ ] **Leaderboard using mock data** - LeaderboardScreen not connected to actual user_stats
 
 ### Low Priority
-- [ ] **Extension popup overflow on small screens** - Some buttons cut off at 400px height
-- [ ] **Dark mode contrast issues** - Some text hard to read in dark mode on extension
-- [ ] **CSV export missing some fields** - guest_claimer_name not included in export
+- [x] ~~**Extension popup overflow on small screens**~~ - Fixed with 560px fixed height, 520px modal max (Jan 24, 2026)
+- [x] ~~**Dark mode contrast issues**~~ - Improved text opacity levels for better readability (Jan 24, 2026)
+- [x] ~~**CSV export missing some fields**~~ - Added "Claimed By" column with guest_claimer_name (Jan 24, 2026)
 
 ---
 
