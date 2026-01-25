@@ -2,7 +2,7 @@
 
 A comprehensive tracking document for the Hint gift-sharing platform across Chrome extension, mobile app, and web viewer. Use this document to track ideas, bugs, questions, and completed work. Update regularly during development sessions.
 
-**Last Updated:** January 24, 2026
+**Last Updated:** January 25, 2026
 **MVP Status:** 95% Complete (~60+ hours development)
 **Current Phase:** Polishing & Enhancement
 
@@ -30,6 +30,15 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 ---
 
 ## New Ideas
+
+### AI-Powered Marketing Push (Instagram/TikTok)
+- [ ] Use AI content generation agents/skills/commands to create marketing content
+- [ ] Target platforms: Instagram, TikTok
+- [ ] Content types: short-form video, reels, stories, product demos
+- [ ] **Reference:** `~/.claude/references/tech-stacks.md` for stack options:
+  - **AI Content Creation Stack:** Nano Banana Pro (images) → Infinite Talk (lipsync) → CapCut (captions) + Claude (prompts)
+  - **AI Content Production Stack (at scale):** Nano Banana + FastMoss + Manus + Veo3
+- [ ] Leverage skills: `creating-growth-content`, `ai-content-creation`, `social-media`
 
 ### Leaderboard & Gamification System
 - [ ] User stats tracking (gifts claimed, given, received)
