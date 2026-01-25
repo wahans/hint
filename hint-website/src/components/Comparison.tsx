@@ -38,24 +38,24 @@ export function Comparison() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full bg-white rounded-2xl overflow-hidden shadow-lg">
+          <table className="w-full bg-white rounded-2xl overflow-hidden shadow-lg" role="table" aria-label="Feature comparison between hint and alternatives">
             <thead>
               <tr className="border-b border-[var(--border)]">
-                <th className="text-left p-4 font-semibold text-[var(--foreground)]">Feature</th>
-                <th className="p-4 text-center">
+                <th scope="col" className="text-left p-4 font-semibold text-[var(--foreground)]">Feature</th>
+                <th scope="col" className="p-4 text-center">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[var(--hint-500)] to-[var(--hint-600)] text-white rounded-full font-semibold">
-                    🎁 hint
+                    <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>hint
                   </div>
                 </th>
-                <th className="p-4 text-center font-medium text-[var(--muted)]">Spreadsheets</th>
-                <th className="p-4 text-center font-medium text-[var(--muted)]">Amazon Lists</th>
-                <th className="p-4 text-center font-medium text-[var(--muted)]">Traditional Registry</th>
+                <th scope="col" className="p-4 text-center font-medium text-[var(--muted)]">Spreadsheets</th>
+                <th scope="col" className="p-4 text-center font-medium text-[var(--muted)]">Amazon Lists</th>
+                <th scope="col" className="p-4 text-center font-medium text-[var(--muted)]">Traditional Registry</th>
               </tr>
             </thead>
             <tbody>
               {comparisonData.map((row, index) => (
                 <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                  <td className="p-4 text-[var(--foreground)]">{row.feature}</td>
+                  <th scope="row" className="p-4 text-[var(--foreground)] text-left font-normal">{row.feature}</th>
                   <td className="p-4 text-center">
                     {row.hint ? <CheckIcon /> : <XIcon />}
                   </td>

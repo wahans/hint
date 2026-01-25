@@ -100,7 +100,7 @@ export function Features() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className={`feature-card rounded-3xl p-8 bg-gradient-to-br ${feature.gradient} border border-[var(--hint-100)]`}
+              className={`feature-card rounded-3xl p-8 bg-gradient-to-br ${feature.gradient} border border-[var(--hint-100)] cursor-pointer`}
             >
               <div className={`w-14 h-14 rounded-2xl ${feature.iconBg} text-white flex items-center justify-center mb-6 shadow-lg`}>
                 {feature.icon}
@@ -209,7 +209,9 @@ export function Features() {
               <div className="w-48 h-48 bg-white/10 rounded-3xl flex items-center justify-center backdrop-blur-sm">
                 <div className="text-center">
                   <div className="w-20 h-20 mx-auto rounded-2xl bg-white/20 flex items-center justify-center animate-float mb-3">
-                    <span className="text-white font-bold text-3xl">🎁</span>
+                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                    </svg>
                   </div>
                   <span className="text-white/80 text-sm">Free forever</span>
                 </div>

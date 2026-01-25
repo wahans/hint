@@ -60,10 +60,12 @@ export function FAQ() {
               className="bg-white rounded-2xl border border-[var(--border)] overflow-hidden"
             >
               <button
-                className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 hover:bg-[var(--hint-50)] transition-colors"
+                className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 hover:bg-[var(--hint-50)] transition-colors cursor-pointer"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                aria-expanded={openIndex === index}
+                aria-controls={`faq-answer-${index}`}
               >
-                <span className="font-semibold text-[var(--foreground)]">
+                <span className="font-semibold text-[var(--foreground)]" id={`faq-question-${index}`}>
                   {faq.question}
                 </span>
                 <svg
@@ -78,7 +80,7 @@ export function FAQ() {
                 </svg>
               </button>
               {openIndex === index && (
-                <div className="px-6 pb-5">
+                <div id={`faq-answer-${index}`} className="px-6 pb-5" role="region" aria-labelledby={`faq-question-${index}`}>
                   <p className="text-[var(--muted)] leading-relaxed">
                     {faq.answer}
                   </p>
