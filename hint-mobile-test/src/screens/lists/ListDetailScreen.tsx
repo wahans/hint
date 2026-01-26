@@ -5,7 +5,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Linking, Alert, Image, Share, Clipboard } from 'react-native';
-import { Text, IconButton, Portal, Modal, Button, Surface } from 'react-native-paper';
+import { Text, IconButton, Portal, Modal, Button, Surface, FAB, Menu } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import type { ListsScreenProps } from '../../navigation/types';
@@ -16,6 +16,7 @@ import type { Product, List } from '../../../shared/types';
 import ProductCard from '../../components/ProductCard';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import EmptyState from '../../components/EmptyState';
+import PriceHistoryChart from '../../components/PriceHistoryChart';
 import { colors } from '../../theme/colors';
 
 export default function ListDetailScreen({ route, navigation }: ListsScreenProps<'ListDetail'>) {
@@ -30,6 +31,7 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productModalVisible, setProductModalVisible] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [addMenuVisible, setAddMenuVisible] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
 
   const loadProducts = async (showRefresh = false) => {
@@ -247,6 +249,18 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
                 </Text>
               )}
 
+              {/* Price History Chart */}
+              <View style={styles.priceHistorySection}>
+                <Text variant="titleSmall" style={{ marginBottom: 8 }}>
+                  Price History
+                </Text>
+                <PriceHistoryChart
+                  productId={selectedProduct.id}
+                  targetPrice={selectedProduct.target_price}
+                  currentPrice={selectedProduct.current_price}
+                />
+              </View>
+
               {/* Claim Status Badge */}
               {isProductClaimed && (
                 <View style={[styles.claimedBadge, { backgroundColor: theme.colors.primaryContainer }]}>
@@ -386,6 +400,28 @@ export default function ListDetailScreen({ route, navigation }: ListsScreenProps
           </View>
         </Modal>
       </Portal>
+
+      {/* Add Product FAB */}
+      <FAB.Group
+        open={addMenuVisible}
+        visible
+        icon={addMenuVisible ? 'close' : 'plus'}
+        actions={[
+          {
+            icon: 'barcode-scan',
+            label: 'Scan Barcode',
+            onPress: () => navigation.navigate('ScanProduct', { listId }),
+          },
+          {
+            icon: 'pencil',
+            label: 'Add Manually',
+            onPress: () => navigation.navigate('AddProduct', { listId }),
+          },
+        ]}
+        onStateChange={({ open }) => setAddMenuVisible(open)}
+        fabStyle={{ backgroundColor: theme.colors.primary }}
+        color={theme.colors.onPrimary}
+      />
     </View>
   );
 }
@@ -434,6 +470,12 @@ const styles = StyleSheet.create({
   },
   modalHostname: {
     marginBottom: 12,
+  },
+  priceHistorySection: {
+    marginBottom: 16,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
   },
   claimedBadge: {
     paddingVertical: 8,

@@ -24,6 +24,7 @@ export default {
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         NSPhotoLibraryUsageDescription: 'Used to save product images',
+        NSCameraUsageDescription: 'Used to scan barcodes and take product photos',
         NSLocationWhenInUseUsageDescription: 'Location is used to show relevant local deals and offers',
         CFBundleURLTypes: [
           {
@@ -65,6 +66,19 @@ export default {
           mode: 'production',
         },
       ],
+      [
+        'expo-camera',
+        {
+          cameraPermission: 'Allow $(PRODUCT_NAME) to access your camera to scan barcodes and take product photos.',
+        },
+      ],
+      [
+        'expo-image-picker',
+        {
+          photosPermission: 'Allow $(PRODUCT_NAME) to access your photos to add product images.',
+        },
+      ],
+      'expo-barcode-scanner',
     ],
     extra: {
       supabaseUrl: process.env.SUPABASE_URL,

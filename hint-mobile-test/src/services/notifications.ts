@@ -7,6 +7,7 @@ import { Platform } from 'react-native';
 import { getEnv } from './init';
 import { getConfig } from '../../shared/config';
 import { authService } from '../../shared/services';
+import { notificationEvents, type NotificationEventData } from './notificationEvents';
 
 // OneSignal is only available in native builds
 let OneSignal: any = null;
@@ -192,8 +193,12 @@ function handleForegroundNotification(event: any): void {
  */
 function handlePriceDropNotification(data: any): void {
   console.log('Price drop notification:', data);
-  // TODO: Navigate to product detail screen
-  // navigation.navigate('ListDetail', { listId: data.listId, productId: data.productId });
+  notificationEvents.emit({
+    type: 'price_drop',
+    listId: data.listId,
+    productId: data.productId,
+    listName: data.listName,
+  });
 }
 
 /**
@@ -201,8 +206,11 @@ function handlePriceDropNotification(data: any): void {
  */
 function handleItemClaimedNotification(data: any): void {
   console.log('Item claimed notification:', data);
-  // TODO: Navigate to list detail screen
-  // navigation.navigate('ListDetail', { listId: data.listId });
+  notificationEvents.emit({
+    type: 'item_claimed',
+    listId: data.listId,
+    listName: data.listName,
+  });
 }
 
 /**
@@ -210,8 +218,12 @@ function handleItemClaimedNotification(data: any): void {
  */
 function handleBackInStockNotification(data: any): void {
   console.log('Back in stock notification:', data);
-  // TODO: Navigate to product detail screen
-  // navigation.navigate('ListDetail', { listId: data.listId, productId: data.productId });
+  notificationEvents.emit({
+    type: 'back_in_stock',
+    listId: data.listId,
+    productId: data.productId,
+    listName: data.listName,
+  });
 }
 
 /**

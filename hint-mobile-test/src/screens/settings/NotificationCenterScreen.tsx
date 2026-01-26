@@ -1,43 +1,17 @@
 /**
  * Hint Mobile - Notification Center Screen
- * In-app notifications for viewing activity
+ * In-app notifications synced with Supabase
  */
 
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Text, Card, Avatar, IconButton, Chip, Surface, Divider } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl, Alert } from 'react-native';
+import { Text, Card, Avatar, Chip } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import type { SettingsScreenProps } from '../../navigation/types';
 import { useTheme } from '../../context/ThemeContext';
-import { storage } from '../../services/init';
+import { notificationService, type AppNotification, type NotificationType } from '../../../shared/services';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import EmptyState from '../../components/EmptyState';
-
-// Notification type definitions
-type NotificationType =
-  | 'item_claimed'
-  | 'price_drop'
-  | 'back_in_stock'
-  | 'friend_request'
-  | 'due_date_reminder'
-  | 'friend_activity';
-
-interface AppNotification {
-  id: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  timestamp: string;
-  read: boolean;
-  data?: {
-    listId?: string;
-    productId?: string;
-    friendId?: string;
-    friendName?: string;
-    price?: number;
-    daysUntilDue?: number;
-  };
-}
 
 // Icon and color mapping for notification types
 const getNotificationStyle = (type: NotificationType) => {
@@ -85,14 +59,11 @@ export default function NotificationCenterScreen({ navigation }: SettingsScreenP
     else setIsLoading(true);
 
     try {
-      // In a real app, this would fetch from an API
-      // For now, we'll use local storage and mock data
-      const stored = await storage.get<AppNotification[]>('appNotifications');
+      const result = await notificationService.getNotifications(50, 0);
 
-      if (stored && stored.length > 0) {
-        setNotifications(stored);
+      if (result.data) {
+        setNotifications(result.data);
       } else {
-        // Set empty - no mock data
         setNotifications([]);
       }
     } catch (error) {
@@ -113,22 +84,54 @@ export default function NotificationCenterScreen({ navigation }: SettingsScreenP
   const handleRefresh = () => loadNotifications(true);
 
   const markAsRead = async (notificationId: string) => {
+    // Optimistic update
     const updated = notifications.map((n) =>
       n.id === notificationId ? { ...n, read: true } : n
     );
     setNotifications(updated);
-    await storage.set('appNotifications', updated);
+
+    // Sync to Supabase
+    const result = await notificationService.markAsRead(notificationId);
+    if (result.error) {
+      console.error('Failed to mark as read:', result.error);
+      // Revert on error
+      loadNotifications();
+    }
   };
 
   const markAllAsRead = async () => {
+    // Optimistic update
     const updated = notifications.map((n) => ({ ...n, read: true }));
     setNotifications(updated);
-    await storage.set('appNotifications', updated);
+
+    // Sync to Supabase
+    const result = await notificationService.markAllAsRead();
+    if (result.error) {
+      console.error('Failed to mark all as read:', result.error);
+      loadNotifications();
+    }
   };
 
   const clearAllNotifications = async () => {
-    setNotifications([]);
-    await storage.set('appNotifications', []);
+    Alert.alert(
+      'Clear All Notifications',
+      'Are you sure you want to clear all notifications?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: async () => {
+            setNotifications([]);
+            const result = await notificationService.clearAllNotifications();
+            if (result.error) {
+              console.error('Failed to clear notifications:', result.error);
+              loadNotifications();
+            }
+          },
+        },
+      ]
+    );
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -171,7 +174,7 @@ export default function NotificationCenterScreen({ navigation }: SettingsScreenP
               variant="labelSmall"
               style={{ color: theme.colors.outline, marginTop: 4 }}
             >
-              {formatTimestamp(item.timestamp)}
+              {formatTimestamp(item.created_at)}
             </Text>
           </View>
         </Card.Content>

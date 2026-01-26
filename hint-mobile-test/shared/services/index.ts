@@ -10,6 +10,7 @@ export { productService } from './product.service';
 export { claimService } from './claim.service';
 export { friendsService, type FriendWithLists } from './friends.service';
 export { leaderboardService } from './leaderboard.service';
+export { notificationService, type AppNotification, type NotificationType } from './notification.service';
 
 // Storage
 export { storage, STORAGE_KEYS, type StorageAdapter } from './storage';

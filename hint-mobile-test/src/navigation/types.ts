@@ -16,9 +16,11 @@ export type AuthStackParamList = {
 // Lists stack params
 export type ListsStackParamList = {
   MyLists: undefined;
-  ListDetail: { listId: string; listName?: string };
+  ListDetail: { listId: string; listName?: string; highlightProductId?: string };
   CreateList: undefined;
   EditList: { listId: string };
+  ScanProduct: { listId: string };
+  AddProduct: { listId: string; barcode?: string };
 };
 
 // Friends stack params

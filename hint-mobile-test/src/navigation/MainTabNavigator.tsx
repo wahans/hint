@@ -21,6 +21,8 @@ import MyListsScreen from '../screens/lists/MyListsScreen';
 import ListDetailScreen from '../screens/lists/ListDetailScreen';
 import CreateListScreen from '../screens/lists/CreateListScreen';
 import EditListScreen from '../screens/lists/EditListScreen';
+import ScanProductScreen from '../screens/products/ScanProductScreen';
+import AddProductScreen from '../screens/products/AddProductScreen';
 import FriendsListsScreen from '../screens/friends/FriendsListsScreen';
 import FriendListDetailScreen from '../screens/friends/FriendListDetailScreen';
 import LeaderboardScreen from '../screens/leaderboard/LeaderboardScreen';
@@ -62,6 +64,16 @@ function ListsStackNavigator() {
         name="EditList"
         component={EditListScreen}
         options={{ title: 'Edit List', presentation: 'modal' }}
+      />
+      <ListsStack.Screen
+        name="ScanProduct"
+        component={ScanProductScreen}
+        options={{ title: 'Scan Barcode', headerShown: false, presentation: 'fullScreenModal' }}
+      />
+      <ListsStack.Screen
+        name="AddProduct"
+        component={AddProductScreen}
+        options={{ title: 'Add Product', presentation: 'modal' }}
       />
     </ListsStack.Navigator>
   );
