@@ -2,6 +2,8 @@
 -- PUBLIC HINTLIST ACCESS - SUPABASE SQL
 -- Allows anonymous users to view public hintlists via access code
 -- Run this in your Supabase SQL Editor
+-- Last Updated: January 25, 2026
+-- Security: search_path set on all functions
 -- =====================================================
 
 -- Function to get a public hintlist by access code (for web viewer)
@@ -9,6 +11,7 @@ CREATE OR REPLACE FUNCTION get_public_hintlist(p_code TEXT)
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path TO 'public'
 AS $$
 DECLARE
   v_list RECORD;
@@ -90,6 +93,7 @@ CREATE OR REPLACE FUNCTION guest_claim_product(
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path TO 'public'
 AS $$
 DECLARE
   v_product RECORD;

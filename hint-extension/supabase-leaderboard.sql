@@ -1,6 +1,8 @@
 -- =====================================================
 -- HINT LEADERBOARD & GAMIFICATION - SUPABASE SQL
 -- Run this in your Supabase SQL Editor
+-- Last Updated: January 25, 2026
+-- Security: search_path set on all functions
 -- =====================================================
 
 -- =====================================================
@@ -63,6 +65,7 @@ CREATE OR REPLACE FUNCTION award_points(
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path TO 'public'
 AS $$
 DECLARE
   v_today DATE := CURRENT_DATE;
@@ -136,6 +139,7 @@ RETURNS TABLE (
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path TO 'public'
 AS $$
 DECLARE
   v_start_date TIMESTAMPTZ;
@@ -237,6 +241,7 @@ RETURNS TABLE (
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path TO 'public'
 AS $$
 DECLARE
   v_start_date TIMESTAMPTZ;
@@ -349,6 +354,7 @@ RETURNS TABLE (
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path TO 'public'
 AS $$
 DECLARE
   v_user_email TEXT;
@@ -383,6 +389,7 @@ CREATE OR REPLACE FUNCTION check_and_award_badges(
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path TO 'public'
 AS $$
 DECLARE
   v_user_email TEXT;

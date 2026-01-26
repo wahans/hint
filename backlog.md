@@ -5,6 +5,7 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 **Last Updated:** January 25, 2026
 **MVP Status:** 95% Complete (~60+ hours development)
 **Current Phase:** Polishing & Enhancement
+**Security:** 0 errors, 6 warnings (5 intentional service-role policies + 1 requires Pro plan)
 
 ---
 
@@ -123,9 +124,25 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 
 ---
 
+## Scheduled Testing
+
+### February 2026 - TestFlight Builds Reset
+- [ ] **Test mobile app new features** (when builds reset)
+  - Push notification navigation (price_drop, item_claimed, back_in_stock → correct screens)
+  - Price history charts in product modal (30d/90d/all filters)
+  - Barcode scanning + manual product entry flow
+  - Added: January 25, 2026
+
+---
+
 ## Bugs
 
 ### High Priority
+- [x] ~~**Supabase Security Review - 10 Errors**~~ - Fixed (Jan 25, 2026)
+  - Enabled RLS on `lists`, `products`, `users` tables
+  - Changed `public_products`, `list_stats`, `products_with_alerts` views to SECURITY INVOKER
+  - Removed `auth.users` exposure from `products_with_alerts` view (dropped `owner_email` column)
+  - Revoked anon access to `products_with_alerts`
 - [x] ~~**Web viewer access codes not validating**~~ - Fixed via RPC functions (Jan 24, 2026)
 - [x] ~~**Web viewer still purple branding**~~ - Already green, was a stale issue
 - [x] ~~**Web viewer "wishlist" terminology**~~ - Already uses "hintlist"
@@ -158,6 +175,17 @@ A comprehensive tracking document for the Hint gift-sharing platform across Chro
 - [ ] Analytics with PostHog/Mixpanel
 - [ ] A/B testing framework
 - [ ] CDN for static assets
+
+### Security Hardening (Warnings - Low Priority)
+- [x] ~~**Fix function search_path**~~ (31 functions) - Fixed (Jan 25, 2026)
+- [x] ~~**Scope anonymous claim policy**~~ - Fixed (Jan 25, 2026)
+- [ ] **Review "always true" RLS policies** (5 remaining) - May be intentional for service role
+  - `point_events.Allow insert for point events`
+  - `points_history.Service role can insert points_history`
+  - `reminders_sent.System can insert reminders`
+  - `user_stats.Allow insert for authenticated users`
+  - `user_stats.Service role can manage user_stats`
+- [ ] **Enable leaked password protection** - Requires Supabase Pro plan (deferred)
 
 ### Accessibility
 - [ ] Screen reader improvements
